@@ -1,0 +1,25 @@
+type Props = React.ComponentProps<"input"> & {
+  label?: string;
+};
+
+export function Input({ label, type = "text", ...rest }: Props) {
+  return (
+    <div className="w-full flex flex-col text-gray-300 focus-within:text-blue-base">
+      {label && (
+        <label
+          className="text-xs uppercase font-bold text-inherit"
+          htmlFor={label}
+        >
+          {label}
+        </label>
+      )}
+
+      <input
+        className="w-full h-[2.5rem] border-b border-gray-500 text-base text-gray-200 placeholder:text-base placeholder:text-gray-400 focus:outline-none focus:border-blue-base"
+        id={label}
+        type={type}
+        {...rest}
+      />
+    </div>
+  );
+}
