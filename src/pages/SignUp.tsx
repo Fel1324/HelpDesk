@@ -7,36 +7,39 @@ import * as z from "zod";
 import { Input } from "../components/form/Input";
 import { Button } from "../components/Button";
 
-type SignInFormData = {
+type SignUpFormData = {
+  name: string;
   email: string;
   password: string;
 };
 
-const signInSchema = z.object({
+const signUpSchema = z.object({
+  name: z.string("Nome é obrigatório").trim().nonempty("Nome é obrigatório"),
   email: z.email("E-mail inválido").toLowerCase(),
   password: z.string("Senha obrigatória").nonempty("Senha obrigatória"),
 });
 
-export function SignIn() {
+export function SignUp() {
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignInFormData>({
+  } = useForm<SignUpFormData>({
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
-    resolver: zodResolver(signInSchema),
+    resolver: zodResolver(signUpSchema),
   });
 
   const navigate = useNavigate();
 
-  function navigateToSignUp() {
-    navigate("/signup");
+  function navigateToSignIn() {
+    navigate("/");
   }
 
-  function onSubmit(data: SignInFormData) {
+  function onSubmit(data: SignUpFormData) {
     console.log(data);
   }
 
@@ -47,13 +50,34 @@ export function SignIn() {
     >
       <div className="border border-gray-500 p-6 rounded-[.625rem]">
         <h1 className="text-xl text-gray-200 font-bold mb-[.125rem]">
-          Acesse o portal
+          Crie sua conta
         </h1>
         <p className="text-sm text-gray-300">
-          Entre usando seu e-mail e senha cadastrados
+          Informe seu nome, e-mail e senha
         </p>
 
         <div className="my-8 flex flex-col gap-4">
+          <div>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field }) => (
+                <Input
+                  label="nome"                  
+                  placeholder="Digite o nome completo"
+                  {...field}
+                />
+              )}
+            />
+
+            {errors.name?.message && (
+              <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
+                <CircleAlert size={16} color="#d03e3e" />
+                {errors.name.message}
+              </span>
+            )}
+          </div>
+
           <div>
             <Controller
               control={control}
@@ -89,28 +113,32 @@ export function SignIn() {
                 />
               )}
             />
-            {errors.password?.message && (
+            {errors.password?.message ? (
               <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
                 <CircleAlert size={16} color="#d03e3e" />
                 {errors.password.message}
+              </span>
+            ) : (
+              <span className="text-gray-400 flex items-center gap-1 mt-1.5 text-sm italic">
+                Mínimo de 6 dígitos
               </span>
             )}
           </div>
         </div>
 
-        <Button type="submit">Entrar</Button>
+        <Button type="submit">Cadastrar</Button>
       </div>
 
       <div className="border border-gray-500 p-6 rounded-[.625rem]">
         <h2 className="text-lg text-gray-200 font-bold mb-[.125rem]">
-          Ainda não tem uma conta?
+          Já tem uma conta?
         </h2>
 
         <p className="text-sm text-gray-300 mb-[1.25rem]">
-          Cadastre agora mesmo
+          Entre agora mesmo
         </p>
 
-        <Button onClick={navigateToSignUp}>Criar conta</Button>
+        <Button onClick={navigateToSignIn}>Acessar conta</Button>
       </div>
     </form>
   );

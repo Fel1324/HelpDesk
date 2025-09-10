@@ -7,7 +7,7 @@ export function Input({ label, type = "text", ...rest }: Props) {
     <div className="w-full flex flex-col text-gray-300 focus-within:text-blue-base">
       {label && (
         <label
-          className="text-xs uppercase font-bold text-inherit"
+          className="text-xs uppercase font-bold text-inherit tracking-wider"
           htmlFor={label}
         >
           {label}
