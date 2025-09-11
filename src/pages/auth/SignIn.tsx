@@ -4,42 +4,39 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert } from "lucide-react";
 import * as z from "zod";
 
-import { Input } from "../components/form/Input";
-import { Button } from "../components/Button";
+import { Input } from "../../components/form/Input";
+import { Button } from "../../components/Button";
 
-type SignUpFormData = {
-  name: string;
+type SignInFormData = {
   email: string;
   password: string;
 };
 
-const signUpSchema = z.object({
-  name: z.string("Nome é obrigatório").trim().nonempty("Nome é obrigatório"),
+const signInSchema = z.object({
   email: z.email("E-mail inválido").toLowerCase(),
   password: z.string("Senha obrigatória").nonempty("Senha obrigatória"),
 });
 
-export function SignUp() {
+export function SignIn() {
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignUpFormData>({
+  } = useForm<SignInFormData>({
     defaultValues: {
-      name: "",
       email: "",
       password: "",
     },
-    resolver: zodResolver(signUpSchema),
+    resolver: zodResolver(signInSchema),
   });
 
   const navigate = useNavigate();
 
-  function navigateToSignIn() {
-    navigate("/");
+  function navigateToSignUp() {
+    navigate("/signup");
   }
 
-  function onSubmit(data: SignUpFormData) {
+  function onSubmit(data: SignInFormData) {
     console.log(data);
   }
 
@@ -50,34 +47,13 @@ export function SignUp() {
     >
       <div className="border border-gray-500 p-6 rounded-[.625rem]">
         <h1 className="text-xl text-gray-200 font-bold mb-[.125rem]">
-          Crie sua conta
+          Acesse o portal
         </h1>
         <p className="text-sm text-gray-300">
-          Informe seu nome, e-mail e senha
+          Entre usando seu e-mail e senha cadastrados
         </p>
 
         <div className="my-8 flex flex-col gap-4">
-          <div>
-            <Controller
-              control={control}
-              name="name"
-              render={({ field }) => (
-                <Input
-                  label="nome"                  
-                  placeholder="Digite o nome completo"
-                  {...field}
-                />
-              )}
-            />
-
-            {errors.name?.message && (
-              <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
-                <CircleAlert size={16} color="#d03e3e" />
-                {errors.name.message}
-              </span>
-            )}
-          </div>
-
           <div>
             <Controller
               control={control}
@@ -113,32 +89,30 @@ export function SignUp() {
                 />
               )}
             />
-            {errors.password?.message ? (
+            {errors.password?.message && (
               <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
                 <CircleAlert size={16} color="#d03e3e" />
                 {errors.password.message}
-              </span>
-            ) : (
-              <span className="text-gray-400 flex items-center gap-1 mt-1.5 text-sm italic">
-                Mínimo de 6 dígitos
               </span>
             )}
           </div>
         </div>
 
-        <Button type="submit">Cadastrar</Button>
+        <Button type="submit">Entrar</Button>
       </div>
 
       <div className="border border-gray-500 p-6 rounded-[.625rem]">
         <h2 className="text-lg text-gray-200 font-bold mb-[.125rem]">
-          Já tem uma conta?
+          Ainda não tem uma conta?
         </h2>
 
         <p className="text-sm text-gray-300 mb-[1.25rem]">
-          Entre agora mesmo
+          Cadastre agora mesmo
         </p>
 
-        <Button onClick={navigateToSignIn}>Acessar conta</Button>
+        <Button styleVariant="link" onClick={navigateToSignUp}>
+          Criar conta
+        </Button>
       </div>
     </form>
   );
