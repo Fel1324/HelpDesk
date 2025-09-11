@@ -1,4 +1,5 @@
 import { Controller, useForm } from "react-hook-form";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert } from "lucide-react";
@@ -18,6 +19,8 @@ const signInSchema = z.object({
 });
 
 export function SignIn() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const {
     control,
     handleSubmit,
@@ -31,10 +34,6 @@ export function SignIn() {
   });
 
   const navigate = useNavigate();
-
-  function navigateToSignUp() {
-    navigate("/signup");
-  }
 
   function onSubmit(data: SignInFormData) {
     console.log(data);
@@ -98,7 +97,7 @@ export function SignIn() {
           </div>
         </div>
 
-        <Button type="submit">Entrar</Button>
+        <Button isLoading={isLoading} type="submit">Entrar</Button>
       </div>
 
       <div className="border border-gray-500 p-6 rounded-[.625rem]">
@@ -110,7 +109,7 @@ export function SignIn() {
           Cadastre agora mesmo
         </p>
 
-        <Button styleVariant="link" onClick={navigateToSignUp}>
+        <Button styleVariant="link" onClick={() => navigate("/signup")}>
           Criar conta
         </Button>
       </div>

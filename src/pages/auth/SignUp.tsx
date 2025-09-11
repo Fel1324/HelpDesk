@@ -1,9 +1,12 @@
 import { Controller, useForm } from "react-hook-form";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert } from "lucide-react";
+import { AxiosError } from "axios";
 import * as z from "zod";
 
+import { api } from "../../services/api";
 import { Input } from "../../components/form/Input";
 import { Button } from "../../components/Button";
 
@@ -16,10 +19,12 @@ type SignUpFormData = {
 const signUpSchema = z.object({
   name: z.string("Nome é obrigatório").trim().nonempty("Nome é obrigatório"),
   email: z.email("E-mail inválido").toLowerCase(),
-  password: z.string("Senha obrigatória").nonempty("Senha obrigatória"),
+  password: z.string("Senha obrigatória").nonempty("Senha obrigatória").min(6, "Senha deve ter no mínimo 6 dígitos"),
 });
 
 export function SignUp() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const {
     control,
     handleSubmit,
@@ -35,12 +40,23 @@ export function SignUp() {
 
   const navigate = useNavigate();
 
-  function navigateToSignIn() {
-    navigate("/");
-  }
+  async function onSubmit(data: SignUpFormData) {
+    try {
+      setIsLoading(true);
+            
+      await api.post("/users", data);
+      navigate("/");
 
-  function onSubmit(data: SignUpFormData) {
-    console.log(data);
+    } catch (error) {
+      if(error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      console.error(error);
+
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -113,6 +129,7 @@ export function SignUp() {
                 />
               )}
             />
+
             {errors.password?.message ? (
               <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
                 <CircleAlert size={16} color="#d03e3e" />
@@ -126,7 +143,7 @@ export function SignUp() {
           </div>
         </div>
 
-        <Button type="submit">Cadastrar</Button>
+        <Button isLoading={isLoading} type="submit">Cadastrar</Button>
       </div>
 
       <div className="border border-gray-500 p-6 rounded-[.625rem]">
@@ -138,7 +155,7 @@ export function SignUp() {
           Entre agora mesmo
         </p>
 
-        <Button styleVariant="link" onClick={navigateToSignIn}>
+        <Button styleVariant="link" onClick={() => navigate("/")}>
           Acessar conta
         </Button>
       </div>

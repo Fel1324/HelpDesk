@@ -31,6 +31,6 @@ img {
   vertical-align: top;
 }
 
-label, button {
+label {
   cursor: pointer;
 }

@@ -28,7 +28,7 @@ export function Button({
       type={type}
       disabled={isLoading}
       className={classMerge([
-        "w-full bg-gray-200 text-gray-600 rounded-md font-bold hover:bg-gray-100 disabled:cursor-progress",
+        "w-full bg-gray-200 text-gray-600 rounded-md font-bold hover:bg-gray-100 hover:cursor-pointer disabled:cursor-progress disabled:opacity-50",
         styleVariants.button[styleVariant],
         className,
       ])}
