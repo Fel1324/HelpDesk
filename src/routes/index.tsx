@@ -1,16 +1,16 @@
 import { BrowserRouter } from "react-router";
 
+import { useAuth } from "../hooks/useAuth";
+
 import { AuthRoutes } from "./AuthRoutes";
 import { AdminRoutes } from "./AdminRoutes";
 import { TechnicianRoutes } from "./TechnicianRoutes";
 import { CustomerRoutes } from "./CustomerRoutes";
 
+const isLoading = false;
+
 export function Routes() {
-  const session = {
-    user: {
-      role: ""
-    }
-  }
+  const { session } = useAuth();
 
   function Route() {
     switch(session?.user.role) {
@@ -23,6 +23,10 @@ export function Routes() {
       default:
         return <AuthRoutes />;
     }
+  }
+
+  if(isLoading) {
+    return <h1>...Loading</h1>
   }
 
   return (

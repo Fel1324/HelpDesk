@@ -7,6 +7,7 @@ import * as z from "zod";
 
 import { CircleAlert } from "lucide-react";
 
+import { useAuth } from "../../hooks/useAuth";
 import { api } from "../../services/api";
 import { Input } from "../../components/form/Input";
 import { Button } from "../../components/Button";
@@ -25,6 +26,8 @@ export function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const auth = useAuth();
+
   const { control, handleSubmit, formState: { errors } } = useForm<SignInFormData>({
     defaultValues: {
       email: "",
@@ -38,7 +41,8 @@ export function SignIn() {
   async function signIn(data: SignInFormData) {
     try {
       setIsLoading(true);
-      const response = await api.post("/sessions", data);
+      const resp = await api.post("/sessions", data);
+      auth.save(resp.data);
 
       setErrorMessage("");
 
@@ -55,7 +59,7 @@ export function SignIn() {
   }
 
   return (
-    <form onSubmit={handleSubmit(signIn)} className="w-full flex flex-col gap-3">
+    <form onSubmit={handleSubmit(signIn)} className="w-full max-w-[25rem] flex flex-col gap-3">
       <div className="border border-gray-500 p-6 rounded-[.625rem]">
         <h1 className="text-xl text-gray-200 font-bold mb-[.125rem]">Acesse o portal</h1>
         <p className="text-sm text-gray-300">Entre usando seu e-mail e senha cadastrados</p>
