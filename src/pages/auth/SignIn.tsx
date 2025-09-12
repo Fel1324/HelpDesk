@@ -1,10 +1,13 @@
-import { Controller, useForm } from "react-hook-form";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircleAlert } from "lucide-react";
+import { AxiosError } from "axios";
 import * as z from "zod";
 
+import { CircleAlert } from "lucide-react";
+
+import { api } from "../../services/api";
 import { Input } from "../../components/form/Input";
 import { Button } from "../../components/Button";
 
@@ -15,17 +18,14 @@ type SignInFormData = {
 
 const signInSchema = z.object({
   email: z.email("E-mail inválido").toLowerCase(),
-  password: z.string("Senha obrigatória").nonempty("Senha obrigatória"),
+  password: z.string("Senha obrigatória").trim().nonempty("Senha obrigatória"),
 });
 
 export function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SignInFormData>({
+  const { control, handleSubmit, formState: { errors } } = useForm<SignInFormData>({
     defaultValues: {
       email: "",
       password: "",
@@ -33,24 +33,32 @@ export function SignIn() {
     resolver: zodResolver(signInSchema),
   });
 
-  const navigate = useNavigate();
+  const navigate = useNavigate();  
 
-  function onSubmit(data: SignInFormData) {
-    console.log(data);
+  async function signIn(data: SignInFormData) {
+    try {
+      setIsLoading(true);
+      const response = await api.post("/sessions", data);
+
+      setErrorMessage("");
+
+    } catch (error) {
+      if(error instanceof AxiosError) {
+        return setErrorMessage(error.response?.data.message);
+      }
+
+      alert("Não foi possível entrar em sua conta. Tente novamente mais tarde.");
+
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="w-full flex flex-col gap-3"
-    >
+    <form onSubmit={handleSubmit(signIn)} className="w-full flex flex-col gap-3">
       <div className="border border-gray-500 p-6 rounded-[.625rem]">
-        <h1 className="text-xl text-gray-200 font-bold mb-[.125rem]">
-          Acesse o portal
-        </h1>
-        <p className="text-sm text-gray-300">
-          Entre usando seu e-mail e senha cadastrados
-        </p>
+        <h1 className="text-xl text-gray-200 font-bold mb-[.125rem]">Acesse o portal</h1>
+        <p className="text-sm text-gray-300">Entre usando seu e-mail e senha cadastrados</p>
 
         <div className="my-8 flex flex-col gap-4">
           <div>
@@ -98,20 +106,20 @@ export function SignIn() {
         </div>
 
         <Button isLoading={isLoading} type="submit">Entrar</Button>
+
+        {errorMessage && 
+          <span className="text-feedback-danger flex items-center gap-1 mt-3">
+            <CircleAlert size={16} color="#d03e3e" />
+            {errorMessage}
+          </span>        
+        }
       </div>
 
       <div className="border border-gray-500 p-6 rounded-[.625rem]">
-        <h2 className="text-lg text-gray-200 font-bold mb-[.125rem]">
-          Ainda não tem uma conta?
-        </h2>
+        <h2 className="text-lg text-gray-200 font-bold mb-[.125rem]">Ainda não tem uma conta?</h2>
+        <p className="text-sm text-gray-300 mb-[1.25rem]">Cadastre agora mesmo</p>
 
-        <p className="text-sm text-gray-300 mb-[1.25rem]">
-          Cadastre agora mesmo
-        </p>
-
-        <Button styleVariant="link" onClick={() => navigate("/signup")}>
-          Criar conta
-        </Button>
+        <Button styleVariant="link" onClick={() => navigate("/signup")}>Criar conta</Button>
       </div>
     </form>
   );
