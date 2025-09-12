@@ -10,6 +10,7 @@ import { CircleAlert } from "lucide-react";
 import { api } from "../../services/api";
 import { Input } from "../../components/form/Input";
 import { Button } from "../../components/Button";
+import { FormLayout } from "../../components/layouts/FormLayout";
 
 type SignUpFormData = {
   name: string;
@@ -60,11 +61,11 @@ export function SignUp() {
 
   return (
     <form onSubmit={handleSubmit(signUp)} className="w-full max-w-[25rem] flex flex-col gap-3">
-      <div className="border border-gray-500 p-6 rounded-[.625rem]">
+      <FormLayout>
         <h1 className="text-xl text-gray-200 font-bold mb-[.125rem]">Crie sua conta</h1>
         <p className="text-sm text-gray-300">Informe seu nome, e-mail e senha</p>
 
-        <div className="my-8 flex flex-col gap-4">
+        <div className="my-8 flex flex-col gap-4 lg:my-10">
           <div>
             <Controller
               control={control}
@@ -142,15 +143,15 @@ export function SignUp() {
             <CircleAlert size={16} color="#d03e3e" />
             {errorMessage}
           </span>        
-        }        
-      </div>
+        }
+      </FormLayout>
 
-      <div className="border border-gray-500 p-6 rounded-[.625rem]">
+      <FormLayout>
         <h2 className="text-lg text-gray-200 font-bold mb-[.125rem]">Já tem uma conta?</h2>
-        <p className="text-sm text-gray-300 mb-[1.25rem]">Entre agora mesmo</p>
+        <p className="text-sm text-gray-300 mb-[1.25rem] lg:mb-6">Entre agora mesmo</p>
 
         <Button role="link" styleVariant="link" onClick={() => navigate("/")}>Acessar conta</Button>
-      </div>
+      </FormLayout>
     </form>
   );
 }

@@ -11,6 +11,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { api } from "../../services/api";
 import { Input } from "../../components/form/Input";
 import { Button } from "../../components/Button";
+import { FormLayout } from "../../components/layouts/FormLayout";
 
 type SignInFormData = {
   email: string;
@@ -60,11 +61,11 @@ export function SignIn() {
 
   return (
     <form onSubmit={handleSubmit(signIn)} className="w-full max-w-[25rem] flex flex-col gap-3">
-      <div className="border border-gray-500 p-6 rounded-[.625rem]">
+      <FormLayout>
         <h1 className="text-xl text-gray-200 font-bold mb-[.125rem]">Acesse o portal</h1>
         <p className="text-sm text-gray-300">Entre usando seu e-mail e senha cadastrados</p>
 
-        <div className="my-8 flex flex-col gap-4">
+        <div className="my-8 flex flex-col gap-4 lg:my-10">
           <div>
             <Controller
               control={control}
@@ -115,16 +116,16 @@ export function SignIn() {
           <span className="text-feedback-danger flex items-center gap-1 mt-3">
             <CircleAlert size={16} color="#d03e3e" />
             {errorMessage}
-          </span>        
+          </span>
         }
-      </div>
+      </FormLayout>
 
-      <div className="border border-gray-500 p-6 rounded-[.625rem]">
+      <FormLayout>
         <h2 className="text-lg text-gray-200 font-bold mb-[.125rem]">Ainda não tem uma conta?</h2>
-        <p className="text-sm text-gray-300 mb-[1.25rem]">Cadastre agora mesmo</p>
+        <p className="text-sm text-gray-300 mb-[1.25rem] lg:mb-6">Cadastre agora mesmo</p>
 
         <Button styleVariant="link" onClick={() => navigate("/signup")}>Criar conta</Button>
-      </div>
+      </FormLayout>
     </form>
   );
 }
