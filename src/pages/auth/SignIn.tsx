@@ -43,7 +43,7 @@ export function SignIn() {
     try {
       setIsLoading(true);
       const resp = await api.post("/sessions", data);
-      auth.save(resp.data);
+      auth.saveUser(resp.data);
 
       setErrorMessage("");
 
