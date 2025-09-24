@@ -1,12 +1,11 @@
-import { useAuth } from "../../hooks/useAuth";
-
 export function TicketsList() {
-  const { removeUser } = useAuth();
-
   return (
     <div>
-      admin <br />
-      <button onClick={removeUser}>LOG OUT</button>
+      <h1 className="text-blue-dark text-2xl font-bold mb-4">Chamados</h1>
+      
+      <div>
+
+      </div>
     </div>
   );
 }
