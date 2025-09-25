@@ -1,5 +1,5 @@
 import { Outlet } from "react-router";
-import { Menu } from "../Menu";
+import { Menu } from "../navigation/Menu";
 
 export function AppLayout() {
   return (
