@@ -11,7 +11,7 @@ export function Navbar() {
   const {pathname} = useLocation();
 
   return (
-    <nav className="mt-4">
+    <nav className="mt-4 lg:w-full lg:mt-0 lg:px-4">
       <ul role="list" className="flex flex-col gap-1">
         <NavLink active={pathname === "/"} link="/">
           <ClipboardList size={20} />

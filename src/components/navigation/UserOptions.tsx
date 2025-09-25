@@ -6,7 +6,7 @@ export function UserOptions() {
   const { removeUser } = useAuth();
 
   return (
-    <aside className="min-w-[12.375rem] px-5 py-4 bg-gray-100 fixed top-[6.25rem] right-6 rounded-[.625rem]">
+    <aside className="min-w-[12.375rem] px-5 py-4 bg-gray-100 fixed top-[6.25rem] right-6 rounded-[.625rem] lg:top-auto lg:right-auto lg:left-[13rem] lg:bottom-2">
       <span className="uppercase text-xs text-gray-400 font-bold">Opções</span>
 
       <ul role="list" className="mt-4 text-base">

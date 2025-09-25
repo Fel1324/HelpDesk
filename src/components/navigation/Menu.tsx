@@ -16,7 +16,7 @@ export function Menu() {
 
   const { session } = useAuth();
   const user = session?.user;
-  const userWithoutAvatar = user?.name?.split(" ").map(n => n[0]).join("").toUpperCase();
+  const userWithoutAvatar = user?.name?.split(" ").slice(0, 2).map(n => n[0]).join("").toUpperCase();
 
   const userRoles = {
     admin: "admin",
@@ -30,14 +30,16 @@ export function Menu() {
 
   return (
     <>
-      <aside className="bg-gray-100 p-6 fixed top-0 left-0 w-full flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <aside 
+        className="bg-gray-100 p-6 fixed top-0 left-0 w-full flex items-center justify-between lg:flex-col lg:h-screen lg:w-[200px] lg:items-start lg:px-0 lg:py-0"
+      >
+        <div className="flex items-center gap-4 lg:w-full lg:pt-9 lg:flex-col lg:gap-[1.25rem]">
           <button
             onClick={() => {
               setIsOpenSideMenu(!isOpenSideMenu)
               setIsOpenUserOptions(false)
             }}
-            className="w-10 h-10 bg-gray-200 flex items-center justify-center rounded-md cursor-pointer"
+            className="w-10 h-10 bg-gray-200 flex items-center justify-center rounded-md cursor-pointer lg:hidden"
           >
             {isOpenSideMenu ? (
               <X size={20} color="#F9FAFA" />
@@ -46,7 +48,7 @@ export function Menu() {
             )}
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 lg:w-full lg:px-[1.25rem] lg:pb-6 lg:border-b-1 lg:border-gray-200">
             <img src={logo} alt="Help Desk logo" className="" />
 
             <div className="flex flex-col">
@@ -59,22 +61,41 @@ export function Menu() {
               }
             </div>
           </div>
+
+          <div className="hidden lg:w-full lg:block">
+            <Navbar />
+          </div>
         </div>
 
-        <button 
-          onClick={() => {
-            setIsOpenUserOptions(!isOpenUserOptions)
-            setIsOpenSideMenu(false)
-          }} 
-          className="w-10 h-10 rounded-4xl bg-blue-dark flex items-center justify-center cursor-pointer"
-          title="Opções do usuário"
-        >
-          { user?.avatar ? (
-            <span>XY</span>
-          ) : (            
-            <span className="text-gray-600">{userWithoutAvatar}</span>
-          )}
-        </button>
+        <div className="lg:px-[1.25rem] lg:py-[1.25rem] lg:flex lg:items-center lg:gap-3 lg:w-full lg:border-t-1 lg:border-gray-200">
+          <button
+            onClick={() => {
+              setIsOpenUserOptions(!isOpenUserOptions)
+              setIsOpenSideMenu(false)
+            }}
+            className="w-10 h-10 rounded-4xl bg-blue-dark flex items-center justify-center cursor-pointer lg:w-8 lg:h-8 lg:text-sm"
+            title="Opções do usuário"
+          >
+            { user?.avatar ? (
+              <span>XY</span>
+            ) : (
+              <span className="text-gray-600">{userWithoutAvatar}</span>
+            )}
+          </button>
+
+          <div className="hidden lg:flex lg:flex-col">
+            <button
+              onClick={() => {
+                setIsOpenUserOptions(!isOpenUserOptions)
+                setIsOpenSideMenu(false)
+              }}
+              className="text-sm text-gray-600 text-left cursor-pointer"
+            >
+                {user?.name}
+            </button>
+            <span className="text-xs text-gray-400">{user?.email}</span>
+          </div>
+        </div>
       </aside>
 
       {isOpenSideMenu && (
