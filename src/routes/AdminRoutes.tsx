@@ -3,6 +3,8 @@ import { Routes, Route } from "react-router";
 import { AppLayout } from "../components/layouts/AppLayout";
 import { TicketsList } from "../pages/admin/TicketsList";
 import { Technicians } from "../pages/admin/Technicians";
+import { Customers } from "../pages/admin/Customers";
+import { Services } from "../pages/admin/Services";
 import { NotFound } from "../pages/NotFound";
 
 export function AdminRoutes() {
@@ -11,6 +13,8 @@ export function AdminRoutes() {
       <Route path="/" element={<AppLayout />}>
         <Route path="/" element={<TicketsList />} />
         <Route path="/technicians" element={<Technicians />} />
+        <Route path="/customers" element={<Customers />} />
+        <Route path="/services" element={<Services />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />
