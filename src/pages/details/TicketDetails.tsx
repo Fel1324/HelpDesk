@@ -21,7 +21,6 @@ export function TicketDetails() {
   const params = useParams<{ id: string }>();
 
   const [ticket, setTicket] = useState<ticketDetails>();
-
   const additionalServices = ticket?.ticketServices.filter(service => service.isAdditional);
 
   async function fetchTicket(id: string) {
@@ -65,7 +64,30 @@ export function TicketDetails() {
         return alert(error.response?.data.message);
       }
 
-      alert("Não foi possível carregar o ticket!");
+      alert("Não foi possível carregar o chamado!");
+    }
+  }
+
+  async function updateTicketStatus(id: string | undefined, status: "emAtendimento" | "encerrado") {
+    try {
+      if(params.id) {
+        await api.patch(`/tickets/${id}/status`, { status }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        window.location.reload();
+      }
+      
+    } catch (error) {
+      console.error(error);
+
+      if(error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível atualizar o status do chamado!");
     }
   }
 
@@ -90,21 +112,24 @@ export function TicketDetails() {
           <Title className="mb-3 md:mb-0 lg:mb-0">Chamado detalhado</Title>
         </div>
 
-        <div className="flex gap-2 md:mt-4.5">
-          <Button styleVariant="buttonIcon" className="min-w-[7.625rem]">
-            <CircleCheckBig size={18} color="#535964" />
-            Encerrar
-          </Button>
+        {user?.role !== "customer" && (
+          <div className="flex gap-2 md:mt-4.5">
+            <Button onClick={() => updateTicketStatus(params.id, "encerrado")} styleVariant="buttonIcon" className="min-w-[7.625rem]">
+              <CircleCheckBig size={18} color="#535964" />
+              Encerrar
+            </Button>
 
-          <Button
-            styleVariant="buttonIcon"
-            className="bg-gray-200 text-gray-600 hover:bg-gray-100 md:min-w-[10.125rem]"
-          >
-            <Clock2 size={18} color="#F9FAFA" />
-            {user?.role === "admin" && "Em atendimento"}
-            {user?.role === "technician" && "Iniciar atendimento"}
-          </Button>
-        </div>
+            <Button
+              onClick={() => updateTicketStatus(params.id, "emAtendimento")}
+              styleVariant="buttonIcon"
+              className="bg-gray-200 text-gray-600 md:min-w-[10.125rem]"
+            >
+              <Clock2 size={18} color="#F9FAFA" />
+              {user?.role === "admin" && "Em atendimento"}
+              {user?.role === "technician" && "Iniciar atendimento"}
+            </Button>
+          </div>
+        )}
       </header>
 
       <div className="mt-4 flex flex-col gap-4 max-w-[31.25rem] mx-auto md:mt-6 lg:max-w-full lg:flex-row lg:gap-6">
