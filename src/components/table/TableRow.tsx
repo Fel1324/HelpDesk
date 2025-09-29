@@ -6,7 +6,7 @@ export function TableRow({ className, ...rest }: Props) {
   return (
     <tr
       className={classMerge([
-        "h-16 border-b-1 border-gray-500",
+        "h-16 border-t-1 border-gray-500 cursor-pointer hover:bg-gray-500 transition ease-in-out",
         className
       ])}
       {...rest}

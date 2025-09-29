@@ -17,6 +17,10 @@
   --color-feedback-progress: #355EC5;
   --color-feedback-done: #508B26;
 
+  --color-feedback-open-20: #CC3D6A33;
+  --color-feedback-progress-20: #355EC533;
+  --color-feedback-done-20: #508B2633;
+
   --text-xxs: .625rem;
 }
 

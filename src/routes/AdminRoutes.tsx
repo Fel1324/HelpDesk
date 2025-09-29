@@ -6,12 +6,15 @@ import { Technicians } from "../pages/admin/Technicians";
 import { Customers } from "../pages/admin/Customers";
 import { Services } from "../pages/admin/Services";
 import { NotFound } from "../pages/NotFound";
+import { TicketDetails } from "../pages/details/TicketDetails";
 
 export function AdminRoutes() {
   return (
     <Routes>
       <Route path="/" element={<AppLayout />}>
         <Route path="/" element={<TicketsList />} />
+        <Route path="/ticket/:id/details" element={<TicketDetails />} />
+
         <Route path="/technicians" element={<Technicians />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/services" element={<Services />} />

@@ -6,7 +6,7 @@ export function TableData({ className, ...rest }: Props) {
   return (
     <td
       className={classMerge([
-        "px-3 text-gray-200",
+        "px-3",
         className
       ])}
       {...rest}

@@ -24,6 +24,16 @@ export function Menu() {
     customer: "cliente",
   };
 
+  function openSideMenu() {
+    setIsOpenSideMenu(!isOpenSideMenu)
+    setIsOpenUserOptions(false)
+  }
+
+  function openUserOptions() {
+    setIsOpenUserOptions(!isOpenUserOptions)
+    setIsOpenSideMenu(false)
+  }
+
   useEffect(() => {
     setIsOpenSideMenu(false);
   }, [pathname])
@@ -31,15 +41,12 @@ export function Menu() {
   return (
     <>
       <aside 
-        className="bg-gray-100 p-6 fixed top-0 left-0 w-full flex items-center justify-between lg:flex-col lg:h-screen lg:w-[200px] lg:items-start lg:px-0 lg:py-0"
+        className="bg-gray-100 p-6 fixed top-0 left-0 w-full flex items-center justify-between xl:flex-col xl:h-screen xl:w-[200px] xl:items-start xl:px-0 xl:py-0"
       >
-        <div className="flex items-center gap-4 lg:w-full lg:pt-9 lg:flex-col lg:gap-[1.25rem]">
+        <div className="flex items-center gap-4 xl:w-full xl:pt-9 xl:flex-col xl:gap-[1.25rem]">
           <button
-            onClick={() => {
-              setIsOpenSideMenu(!isOpenSideMenu)
-              setIsOpenUserOptions(false)
-            }}
-            className="w-10 h-10 bg-gray-200 flex items-center justify-center rounded-md cursor-pointer lg:hidden"
+            onClick={openSideMenu}
+            className="w-10 h-10 bg-gray-200 flex items-center justify-center rounded-md cursor-pointer xl:hidden"
           >
             {isOpenSideMenu ? (
               <X size={20} color="#F9FAFA" />
@@ -48,7 +55,7 @@ export function Menu() {
             )}
           </button>
 
-          <div className="flex items-center gap-3 lg:w-full lg:px-[1.25rem] lg:pb-6 lg:border-b-1 lg:border-gray-200">
+          <div className="flex items-center gap-3 xl:w-full xl:px-[1.25rem] xl:pb-6 xl:border-b-1 xl:border-gray-200">
             <img src={logo} alt="Help Desk logo" className="" />
 
             <div className="flex flex-col">
@@ -62,18 +69,15 @@ export function Menu() {
             </div>
           </div>
 
-          <div className="hidden lg:w-full lg:block">
+          <div className="hidden xl:w-full xl:block">
             <Navbar />
           </div>
         </div>
 
-        <div className="lg:px-[1.25rem] lg:py-[1.25rem] lg:flex lg:items-center lg:gap-3 lg:w-full lg:border-t-1 lg:border-gray-200">
+        <div className="xl:px-[1.25rem] xl:py-[1.25rem] xl:flex xl:items-center xl:gap-3 xl:w-full xl:border-t-1 xl:border-gray-200">
           <button
-            onClick={() => {
-              setIsOpenUserOptions(!isOpenUserOptions)
-              setIsOpenSideMenu(false)
-            }}
-            className="w-10 h-10 rounded-4xl bg-blue-dark flex items-center justify-center cursor-pointer lg:w-8 lg:h-8 lg:text-sm"
+            onClick={openUserOptions}
+            className="w-10 h-10 rounded-4xl bg-blue-dark flex items-center justify-center cursor-pointer xl:w-8 xl:h-8 xl:text-sm"
             title="Opções do usuário"
           >
             { user?.avatar ? (
@@ -83,12 +87,9 @@ export function Menu() {
             )}
           </button>
 
-          <div className="hidden lg:flex lg:flex-col">
+          <div className="hidden xl:flex xl:flex-col">
             <button
-              onClick={() => {
-                setIsOpenUserOptions(!isOpenUserOptions)
-                setIsOpenSideMenu(false)
-              }}
+              onClick={openUserOptions}
               className="text-sm text-gray-600 text-left cursor-pointer"
             >
                 {user?.name}

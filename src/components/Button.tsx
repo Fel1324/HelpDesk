@@ -2,7 +2,7 @@ import { classMerge } from "../utils/classMerge";
 
 type Props = React.ComponentProps<"button"> & {
   isLoading?: boolean;
-  styleVariant?: "base" | "icon" | "iconSmall" | "small" | "link";
+  styleVariant?: "base" | "icon" | "iconSmall" | "small" | "link" | "buttonIcon";
 };
 
 const styleVariants = {
@@ -12,6 +12,7 @@ const styleVariants = {
     small: "h-7",
     iconSmall: "h-7 w-7 flex items-center justify-center hover:bg-gray-400",
     link: "h-[2.5rem] bg-gray-500 text-gray-200 hover:bg-gray-400 hover:text-gray-100",
+    buttonIcon: "flex items-center justify-center gap-2 h-[2.5rem] text-sm bg-gray-500 text-gray-200 hover:bg-gray-400",
   },
 };
 
