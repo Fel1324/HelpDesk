@@ -59,9 +59,9 @@ export function Technicians() {
     <div>
       <div className="flex items-center justify-between mb-4 lg:mb-6">
         <Title className="mb-0 lg:mb-0">Técnicos</Title>
-        <Button className="flex items-center justify-center w-10 h-10">
-          <Plus size={20} color="#F9FAFA" />
-          <span className="hidden">Novo</span>
+        <Button className="text-sm flex items-center justify-center basis-10 h-10 lg:basis-[5.75rem] lg:gap-2">
+          <Plus size={18} color="#F9FAFA" />
+          <span className="hidden lg:block">Novo</span>
         </Button>
       </div>
 
