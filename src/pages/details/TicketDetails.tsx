@@ -77,7 +77,7 @@ export function TicketDetails() {
           },
         });
 
-        window.location.reload();
+        await fetchTicket(params.id);
       }
       
     } catch (error) {
