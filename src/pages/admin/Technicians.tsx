@@ -81,7 +81,7 @@ export function Technicians() {
               <TableData className="lg:w-[10rem]">
                 <div className="flex items-center gap-3">
                   <UserAvatar className="w-7 h-7" username={technician.name} />
-                  <span className="text-gray-200 text-sm font-bold">{technician.name}</span>
+                  <span className="text-gray-200 text-sm font-bold capitalize">{technician.name}</span>
                 </div>
               </TableData>
 
@@ -104,7 +104,7 @@ export function Technicians() {
                 <Button styleVariant="iconSmall" className="bg-gray-500">
                   <PenLine size={14} color="#1E2024" />
                 </Button>
-              </TableData>              
+              </TableData>
             </TableRow>
           ))}
         </tbody>
