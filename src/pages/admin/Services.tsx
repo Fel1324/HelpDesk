@@ -46,7 +46,28 @@ export function Services() {
         return alert(error.response?.data.message);
       }
 
-      alert("Não foi possível carregar os técnicos!");
+      alert("Não foi possível carregar os serviços!");
+    }
+  }
+
+  async function updateServiceStatus(status: "ativo" | "inativo", id: string) {
+    try {
+      await api.patch(`/services/${id}/status`, {status}, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      await fetchServices();
+
+    } catch (error) {
+      console.error(error);
+
+      if(error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível atualizar o status do serviço!");      
     }
   }
 
@@ -76,7 +97,7 @@ export function Services() {
 
         <tbody>
           {services.map((service) => (
-            <TableRow key={service.id}>
+            <TableRow id={service.id} key={service.id}>
               <TableData className="text-gray-200 font-bold text-sm">{service.title}</TableData>
 
               <TableData className="text-gray-200 text-sm w-[20.5rem]">
@@ -86,7 +107,7 @@ export function Services() {
                 })}
               </TableData>
 
-              <TableData>
+              <TableData className="w-[6.75rem]">
                 {service.status === "ativo" ? (
                   <span className="py-1.5 px-3 rounded-4xl bg-feedback-done-20 font-bold text-xs text-feedback-done">
                     Ativo
@@ -99,9 +120,11 @@ export function Services() {
               </TableData>
 
              <TableData>
-                <div className="flex items-center gap-2.5">
-                  <button>
-                    <div className="text-gray-300 text-xs font-bold">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => updateServiceStatus(service.status === "ativo" ? "inativo" : "ativo", service.id)} className="cursor-pointer"
+                  >
+                    <div className="text-gray-300 text-xs font-bold w-[4.75rem]">
                       {service.status === "ativo" ? (
                         <span className="flex items-center gap-2">
                           <Ban size={14} color="#535964" />
