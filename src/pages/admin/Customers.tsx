@@ -46,7 +46,28 @@ export function Customers() {
         return alert(error.response?.data.message);
       }
 
-      alert("Não foi possível carregar os técnicos!");      
+      alert("Não foi possível carregar os clientes!");
+    }
+  }
+
+  async function removeCustomer(id: string) {
+    try {
+      await api.delete(`/customers/${id}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      await fetchCustomers();
+      
+    } catch (error) {
+      console.error(error);
+
+      if(error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível remove o cliente!");
     }
   }
 
@@ -81,7 +102,7 @@ export function Customers() {
 
              <TableData>
                 <div className="flex items-center gap-2">
-                  <Button styleVariant="iconSmall" className="bg-gray-500">
+                  <Button onClick={() => removeCustomer(customer.id)} styleVariant="iconSmall" className="bg-gray-500">
                     <Trash size={14} color="#D03E3E" />
                   </Button>
 
