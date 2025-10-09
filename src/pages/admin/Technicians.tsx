@@ -36,6 +36,7 @@ export function Technicians() {
           id: technician.id,
           name: technician.name,
           email: technician.email,
+          avatarUrl: technician.avatar,
           technicianTimes: technician.technicianTimes,
         }))
       );

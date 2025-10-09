@@ -14,12 +14,15 @@ import type { Customer } from "../../types/customer";
 import { UserAvatar } from "../../components/UserAvatar";
 import { Button } from "../../components/Button";
 import { PenLine, Trash } from "lucide-react";
+import { Modal } from "../../components/Modal";
 
 export function Customers() {
   const { session } = useAuth();
   const token = session?.token;
 
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customer, setCustomer] = useState<Customer>({} as Customer);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
   async function fetchCustomers() {
     try {
@@ -36,6 +39,7 @@ export function Customers() {
           id: customer.id,
           name: customer.name,
           email: customer.email,
+          avatarUrl: customer.avatar,
         }))
       );
 
@@ -50,6 +54,36 @@ export function Customers() {
     }
   }
 
+  async function fetchCustomer(id: string) {
+    try {
+      const resp = await api.get<CustomerAPIResp>(`/customers/${id}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      })
+
+      const { data } = resp;
+
+      setCustomer({
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        avatarUrl: data.avatar,
+      })
+
+      setIsDeleteModalOpen(true);
+
+    } catch (error) {
+      console.error(error);
+
+      if(error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível carregar o cliente!");
+    }
+  }
+
   async function removeCustomer(id: string) {
     try {
       await api.delete(`/customers/${id}`, {
@@ -58,6 +92,7 @@ export function Customers() {
         },
       });
 
+      setIsDeleteModalOpen(false);
       await fetchCustomers();
       
     } catch (error) {
@@ -67,7 +102,7 @@ export function Customers() {
         return alert(error.response?.data.message);
       }
 
-      alert("Não foi possível remove o cliente!");
+      alert("Não foi possível remover o cliente!");
     }
   }
 
@@ -102,7 +137,7 @@ export function Customers() {
 
              <TableData>
                 <div className="flex items-center gap-2">
-                  <Button onClick={() => removeCustomer(customer.id)} styleVariant="iconSmall" className="bg-gray-500">
+                  <Button onClick={() => fetchCustomer(customer.id)} styleVariant="iconSmall" className="bg-gray-500">
                     <Trash size={14} color="#D03E3E" />
                   </Button>
 
@@ -115,6 +150,32 @@ export function Customers() {
           ))}
         </tbody>
       </Table>
+
+      <Modal
+        title="Excluir cliente"
+        isOpen={isDeleteModalOpen}
+        close={setIsDeleteModalOpen}
+        bodyContent={
+          <div className="px-7 text-gray-200">
+            <p className="mb-5">Deseja realmente excluir <span className="font-bold capitalize">{customer.name}</span></p>
+            <p>Ao excluir, todos os chamados deste cliente serão removidos e esta ação não poderá ser desfeita.</p>
+          </div>
+        }
+        buttons={
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="w-[9.125rem] bg-gray-500 text-sm text-gray-200 md:w-[11.75rem]"
+            >
+              Cancelar
+            </Button>
+
+            <Button onClick={() => removeCustomer(customer.id)} className="w-[9.125rem] text-sm font-bold md:w-[11.75rem]">
+              Sim, excluir
+            </Button>
+          </div>
+        }
+      />
     </div>
   )
 }

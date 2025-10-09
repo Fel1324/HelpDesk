@@ -20,7 +20,7 @@ export function TicketDetails() {
 
   const params = useParams<{ id: string }>();
 
-  const [ticket, setTicket] = useState<ticketDetails>();
+  const [ticket, setTicket] = useState<ticketDetails>({} as ticketDetails);
   const additionalServices = ticket?.ticketServices.filter(service => service.isAdditional);
 
   async function fetchTicket(id: string) {
