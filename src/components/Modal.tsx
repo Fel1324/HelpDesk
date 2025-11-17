@@ -5,10 +5,9 @@ type Props = React.ComponentProps<"div"> & {
   isOpen: boolean;
   close: (state: boolean) => void;
   bodyContent: React.ReactNode;
-  buttons: React.ReactNode;
 }
 
-export function Modal({ title, isOpen, close, bodyContent, buttons }: Props) {
+export function Modal({ title, isOpen, close, bodyContent }: Props) {
   if(isOpen) {
     return (
       <>
@@ -22,13 +21,11 @@ export function Modal({ title, isOpen, close, bodyContent, buttons }: Props) {
             </button>
           </div>
   
-          <div className="pt-7 pb-8 border-y border-gray-500">
-            {bodyContent}
-          </div>
-  
-          <div className="py-6 px-7">
-            {buttons}
-          </div>
+          <div className="pt-7 pb-6 border-t border-gray-500">
+            <div className="px-7 text-gray-200">
+              {bodyContent}
+            </div>
+          </div>  
         </aside>
       </>
     )

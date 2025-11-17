@@ -1,24 +1,53 @@
 import { useAuth } from "../../hooks/useAuth";
 import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { AxiosError } from "axios";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 import { api } from "../../services/api";
 
-import { Ban, CircleCheck, PenLine, Plus } from "lucide-react";
+import { Ban, CircleAlert, CircleCheck, PenLine, Plus } from "lucide-react";
 import { Button } from "../../components/Button";
 import { Title } from "../../components/Title";
 import { Table } from "../../components/table/Table";
 import { TableHeader } from "../../components/table/TableHeader";
 import { TableRow } from "../../components/table/TableRow";
 import { TableData } from "../../components/table/TableData";
+import { Modal } from "../../components/Modal";
+import { Input } from "../../components/form/Input";
 
 import type { Service } from "../../types/service";
+import { AmountInput } from "../../components/form/AmountInput";
+
+type ServiceFormData = {
+  title: string;
+  price: number;
+}
+
+const serviceSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(2, "O título do serviço deve ter pelo menos 2 caracteres!"),
+  price: z
+    .number("O preço é obrigatório!")
+    .positive("O preço precisa ser maior do que zero!"),    
+})
 
 export function Services() {
   const { session } = useAuth();
   const token = session?.token;
 
   const [services, setServices] = useState<Service[]>([]);
+  const [isCreateServiceModalOpen, setIsCreateServiceModalOpen] = useState<boolean>(false);
+
+  const { control, handleSubmit, formState: { errors }, setValue } = useForm<ServiceFormData>({
+    defaultValues: {
+      title: "",
+    },
+    resolver: zodResolver(serviceSchema),
+  });
 
   async function fetchServices() {
     try {
@@ -47,6 +76,29 @@ export function Services() {
       }
 
       alert("Não foi possível carregar os serviços!");
+    }
+  }
+
+  async function createServices(data: ServiceFormData) {
+    try {
+      await api.post("/services", data, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      await fetchServices();
+
+      setIsCreateServiceModalOpen(false);
+
+    } catch (error) {
+      console.error(error);
+
+      if(error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível criar o serviço.");      
     }
   }
 
@@ -79,7 +131,12 @@ export function Services() {
     <div>
       <div className="flex items-center justify-between mb-4 lg:mb-6">
         <Title className="mb-0 lg:mb-0">Serviços</Title>
-        <Button className="text-sm flex items-center justify-center basis-10 h-10 lg:basis-[5.75rem] lg:gap-2">
+        <Button
+          onClick={() => {
+            setIsCreateServiceModalOpen(true);
+          }}
+          className="text-sm flex items-center justify-center basis-10 h-10 lg:basis-[5.75rem] lg:gap-2"
+        >
           <Plus size={18} color="#F9FAFA" />
           <span className="hidden lg:block">Novo</span>
         </Button>
@@ -148,6 +205,66 @@ export function Services() {
           ))}
         </tbody>
       </Table>
+
+      <Modal
+        title="Cadastro de serviço"
+        isOpen={isCreateServiceModalOpen}
+        close={setIsCreateServiceModalOpen}
+        bodyContent={
+          <div>
+            <form onSubmit={handleSubmit(createServices)} className="mt-5">
+              <div className="flex flex-col gap-4">
+                <div>
+                  <Controller
+                    control={control}
+                    name="title"                    
+                    render={({ field }) => (
+                      <Input
+                        label="Título"
+                        placeholder="Nome do serviço"                        
+                        {...field}
+                      />
+                    )}
+                  />
+
+                  {errors.title?.message && (
+                    <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
+                      <CircleAlert size={16} color="#d03e3e" />
+                      {errors.title.message}
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <Controller
+                    control={control}
+                    name="price"
+                    render={({ field }) => (
+                      <AmountInput
+                        label="Preço"
+                        placeholder="R$ 0,00"
+                        value={field.value}
+                        onValueChange={(values) => field.onChange(values.floatValue)}
+                      />
+                    )}
+                  />
+
+                  {errors.price?.message && (
+                    <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
+                      <CircleAlert size={16} color="#d03e3e" />
+                      {errors.price.message}
+                    </span>
+                  )}                  
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <Button className="text-sm" type="submit">Salvar</Button>
+              </div>
+            </form>            
+          </div>
+        }
+      />
     </div>
   );
 }

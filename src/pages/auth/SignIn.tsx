@@ -24,8 +24,8 @@ const signInSchema = z.object({
 });
 
 export function SignIn() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const auth = useAuth();
 

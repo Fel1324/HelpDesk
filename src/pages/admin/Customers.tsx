@@ -1,6 +1,9 @@
 import { useAuth } from "../../hooks/useAuth";
 import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
+import * as z from "zod";
 
 import { api } from "../../services/api";
 
@@ -13,8 +16,19 @@ import { TableData } from "../../components/table/TableData";
 import type { Customer } from "../../types/customer";
 import { UserAvatar } from "../../components/UserAvatar";
 import { Button } from "../../components/Button";
-import { PenLine, Trash } from "lucide-react";
+import { CircleAlert, PenLine, Trash } from "lucide-react";
 import { Modal } from "../../components/Modal";
+import { Input } from "../../components/form/Input";
+
+type CustomerFormData = {
+  name: string;
+  email: string;
+}
+
+const customerSchema = z.object({
+  name: z.string().trim().min(2, "Nome deve ter no mínimo 2 caracteres"),
+  email: z.email("E-mail inválido").toLowerCase(),
+})
 
 export function Customers() {
   const { session } = useAuth();
@@ -22,7 +36,17 @@ export function Customers() {
 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customer, setCustomer] = useState<Customer>({} as Customer);
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
+
+  const { control, handleSubmit, formState: { errors }, setValue } = useForm<CustomerFormData>({
+    defaultValues: {
+      name: "",
+      email: "",
+    },
+    resolver: zodResolver(customerSchema),
+  })
 
   async function fetchCustomers() {
     try {
@@ -71,7 +95,8 @@ export function Customers() {
         avatarUrl: data.avatar,
       })
 
-      setIsDeleteModalOpen(true);
+      setValue("name", data.name);
+      setValue("email", data.email);
 
     } catch (error) {
       console.error(error);
@@ -106,6 +131,28 @@ export function Customers() {
     }
   }
 
+  async function updateCustomer(data: CustomerFormData) {
+    try {
+      await api.put(`/customers/${customer.id}`, data, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      setIsUpdateModalOpen(false);
+      await fetchCustomers();
+      
+    } catch (error) {
+      console.error(error);
+
+      if(error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível atualizar as informações do cliente.");
+    }
+  }
+
   useEffect(() => {
     fetchCustomers();
   }, [])  
@@ -137,11 +184,24 @@ export function Customers() {
 
              <TableData>
                 <div className="flex items-center gap-2">
-                  <Button onClick={() => fetchCustomer(customer.id)} styleVariant="iconSmall" className="bg-gray-500">
+                  <Button onClick={() => {
+                      fetchCustomer(customer.id)
+                      setIsDeleteModalOpen(true);
+                    }} 
+                    styleVariant="iconSmall"
+                    className="bg-gray-500"
+                  >
                     <Trash size={14} color="#D03E3E" />
                   </Button>
 
-                  <Button styleVariant="iconSmall" className="bg-gray-500">
+                  <Button 
+                    onClick={() => {
+                      fetchCustomer(customer.id)
+                      setIsUpdateModalOpen(true);
+                    }}
+                    styleVariant="iconSmall"
+                    className="bg-gray-500"
+                  >
                     <PenLine size={14} color="#1E2024" />
                   </Button>
                 </div>
@@ -152,28 +212,88 @@ export function Customers() {
       </Table>
 
       <Modal
+        title="Editar cliente"
+        isOpen={isUpdateModalOpen}
+        close={setIsUpdateModalOpen}
+        bodyContent={
+          <div>
+            <UserAvatar className="w-12 h-12 text-[1.375rem]" username={customer.name} />
+
+            <form onSubmit={handleSubmit(updateCustomer)} className="mt-5">
+              <div className="flex flex-col gap-4">
+                <div>
+                  <Controller
+                    control={control}
+                    name="name"                    
+                    render={({ field }) => (
+                      <Input
+                        label="Nome"
+                        placeholder="Nome do cliente"                        
+                        {...field}
+                      />
+                    )}
+                  />
+
+                  {errors.name?.message && (
+                    <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
+                      <CircleAlert size={16} color="#d03e3e" />
+                      {errors.name.message}
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <Controller
+                    control={control}
+                    name="email"
+                    render={({ field }) => (
+                      <Input
+                        label="e-mail"
+                        placeholder="E-mail do cliente"
+                        {...field}
+                      />
+                    )}
+                  />
+
+                  {errors.email?.message && (
+                    <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
+                      <CircleAlert size={16} color="#d03e3e" />
+                      {errors.email.message}
+                    </span>
+                  )}                  
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <Button className="text-sm" type="submit">Salvar</Button>
+              </div>
+            </form>
+          </div>
+        }
+      />
+
+      <Modal
         title="Excluir cliente"
         isOpen={isDeleteModalOpen}
         close={setIsDeleteModalOpen}
         bodyContent={
-          <div className="px-7 text-gray-200">
+          <>
             <p className="mb-5">Deseja realmente excluir <span className="font-bold capitalize">{customer.name}</span></p>
             <p>Ao excluir, todos os chamados deste cliente serão removidos e esta ação não poderá ser desfeita.</p>
-          </div>
-        }
-        buttons={
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={() => setIsDeleteModalOpen(false)}
-              className="w-[9.125rem] bg-gray-500 text-sm text-gray-200 md:w-[11.75rem]"
-            >
-              Cancelar
-            </Button>
 
-            <Button onClick={() => removeCustomer(customer.id)} className="w-[9.125rem] text-sm font-bold md:w-[11.75rem]">
-              Sim, excluir
-            </Button>
-          </div>
+            <div className="mt-7 flex items-center gap-2">
+              <Button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="w-[9.125rem] bg-gray-500 text-sm text-gray-200 md:w-[11.75rem]"
+              >
+                Cancelar
+              </Button>
+
+              <Button onClick={() => removeCustomer(customer.id)} className="w-[9.125rem] text-sm font-bold md:w-[11.75rem]">
+                Sim, excluir
+              </Button>
+            </div>
+          </>
         }
       />
     </div>
