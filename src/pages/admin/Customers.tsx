@@ -78,7 +78,7 @@ export function Customers() {
     }
   }
 
-  async function fetchCustomer(id: string) {
+  async function fetchCustomer(id: string, modalType: "update" | "delete") {
     try {
       const resp = await api.get<CustomerAPIResp>(`/customers/${id}`, {
         headers: {
@@ -97,6 +97,8 @@ export function Customers() {
 
       setValue("name", data.name);
       setValue("email", data.email);
+
+      modalType === "update" ? setIsUpdateModalOpen(true) : setIsDeleteModalOpen(true);
 
     } catch (error) {
       console.error(error);
@@ -139,8 +141,8 @@ export function Customers() {
         },
       });
 
-      setIsUpdateModalOpen(false);
       await fetchCustomers();
+      setIsUpdateModalOpen(false);
       
     } catch (error) {
       console.error(error);
@@ -182,12 +184,9 @@ export function Customers() {
 
               <TableData className="text-sm text-gray-200">{customer.email}</TableData>
 
-             <TableData>
+              <TableData>
                 <div className="flex items-center gap-2">
-                  <Button onClick={() => {
-                      fetchCustomer(customer.id)
-                      setIsDeleteModalOpen(true);
-                    }} 
+                  <Button onClick={() => fetchCustomer(customer.id, "delete")} 
                     styleVariant="iconSmall"
                     className="bg-gray-500"
                   >
@@ -195,10 +194,7 @@ export function Customers() {
                   </Button>
 
                   <Button 
-                    onClick={() => {
-                      fetchCustomer(customer.id)
-                      setIsUpdateModalOpen(true);
-                    }}
+                    onClick={() => fetchCustomer(customer.id, "update")}
                     styleVariant="iconSmall"
                     className="bg-gray-500"
                   >

@@ -19,7 +19,7 @@ type SignUpFormData = {
 };
 
 const signUpSchema = z.object({
-  name: z.string("Nome é obrigatório").trim().nonempty("Nome é obrigatório"),
+  name: z.string("Nome é obrigatório").trim().nonempty("Nome é obrigatório").min(2, "Nome deve ter no mínimo 2 caracteres"),
   email: z.email("E-mail inválido").toLowerCase(),
   password: z.string("Senha obrigatória").trim().nonempty("Senha obrigatória").min(6, "Senha deve ter no mínimo 6 dígitos"),
 });

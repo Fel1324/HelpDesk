@@ -40,9 +40,12 @@ export function Services() {
   const token = session?.token;
 
   const [services, setServices] = useState<Service[]>([]);
-  const [isCreateServiceModalOpen, setIsCreateServiceModalOpen] = useState<boolean>(false);
+  const [service, setService] = useState<Service>({} as Service)
 
-  const { control, handleSubmit, formState: { errors }, setValue } = useForm<ServiceFormData>({
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
+
+  const { control, handleSubmit, formState: { errors }, reset, setValue } = useForm<ServiceFormData>({
     defaultValues: {
       title: "",
     },
@@ -79,7 +82,40 @@ export function Services() {
     }
   }
 
-  async function createServices(data: ServiceFormData) {
+  async function fetchService(id: string) {
+    try {
+      const resp = await api.get<ServiceAPIResp>(`/services/${id}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+      });
+
+      const { data } = resp;
+
+      setService({
+        id: data.id,
+        title: data.title,
+        price: data.price,
+        status: data.status,
+      });
+
+      setValue("title", data.title);
+      setValue("price", data.price);
+
+      setIsUpdateModalOpen(true);
+
+    } catch (error) {
+      console.error(error);
+
+      if(error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível carregar o serviço!");
+    } 
+  }
+
+  async function createService(data: ServiceFormData) {
     try {
       await api.post("/services", data, {
         headers: {
@@ -89,7 +125,8 @@ export function Services() {
 
       await fetchServices();
 
-      setIsCreateServiceModalOpen(false);
+      setIsCreateModalOpen(false);
+      reset();
 
     } catch (error) {
       console.error(error);
@@ -99,6 +136,28 @@ export function Services() {
       }
 
       alert("Não foi possível criar o serviço.");      
+    }
+  }
+
+  async function updateService(data: ServiceFormData) {
+    try {
+      await api.put(`/services/${service.id}`, data, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      await fetchServices();
+      setIsUpdateModalOpen(false);
+
+    } catch (error) {
+      console.error(error);
+
+      if(error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível atualizar as informações do serviço.");
     }
   }
 
@@ -133,7 +192,8 @@ export function Services() {
         <Title className="mb-0 lg:mb-0">Serviços</Title>
         <Button
           onClick={() => {
-            setIsCreateServiceModalOpen(true);
+            reset();
+            setIsCreateModalOpen(true)
           }}
           className="text-sm flex items-center justify-center basis-10 h-10 lg:basis-[5.75rem] lg:gap-2"
         >
@@ -196,7 +256,11 @@ export function Services() {
                     </div>
                   </button>
 
-                  <Button styleVariant="iconSmall" className="bg-gray-500">
+                  <Button
+                    onClick={() => fetchService(service.id)}
+                    styleVariant="iconSmall"
+                    className="bg-gray-500"
+                  >
                     <PenLine size={14} color="#1E2024" />
                   </Button>
                 </div>
@@ -208,11 +272,11 @@ export function Services() {
 
       <Modal
         title="Cadastro de serviço"
-        isOpen={isCreateServiceModalOpen}
-        close={setIsCreateServiceModalOpen}
+        isOpen={isCreateModalOpen}
+        close={setIsCreateModalOpen}
         bodyContent={
           <div>
-            <form onSubmit={handleSubmit(createServices)} className="mt-5">
+            <form onSubmit={handleSubmit(createService)} className="mt-5">
               <div className="flex flex-col gap-4">
                 <div>
                   <Controller
@@ -265,6 +329,66 @@ export function Services() {
           </div>
         }
       />
+
+      <Modal
+        title="Edição de serviço"
+        isOpen={isUpdateModalOpen}
+        close={setIsUpdateModalOpen}
+        bodyContent={
+          <div>
+            <form onSubmit={handleSubmit(updateService)} className="mt-5">
+              <div className="flex flex-col gap-4">
+                <div>
+                  <Controller
+                    control={control}
+                    name="title"                    
+                    render={({ field }) => (
+                      <Input
+                        label="Título"
+                        placeholder="Nome do serviço"                        
+                        {...field}
+                      />
+                    )}
+                  />
+
+                  {errors.title?.message && (
+                    <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
+                      <CircleAlert size={16} color="#d03e3e" />
+                      {errors.title.message}
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <Controller
+                    control={control}
+                    name="price"
+                    render={({ field }) => (
+                      <AmountInput
+                        label="Preço"
+                        placeholder="R$ 0,00"
+                        value={field.value}
+                        onValueChange={(values) => field.onChange(values.floatValue ?? null)}
+                      />
+                    )}
+                  />
+
+                  {errors.price?.message && (
+                    <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
+                      <CircleAlert size={16} color="#d03e3e" />
+                      {errors.price.message}
+                    </span>
+                  )}                  
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <Button className="text-sm" type="submit">Salvar</Button>
+              </div>
+            </form>            
+          </div>
+        }
+      />      
     </div>
   );
 }
