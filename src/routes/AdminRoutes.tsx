@@ -1,12 +1,17 @@
 import { Routes, Route } from "react-router";
 
 import { AppLayout } from "../components/layouts/AppLayout";
+
 import { TicketsList } from "../pages/admin/TicketsList";
+import { TicketDetails } from "../pages/details/TicketDetails";
+
 import { Technicians } from "../pages/admin/Technicians";
+import { CreateTechnician } from "../pages/admin/CreateTechnician";
+
 import { Customers } from "../pages/admin/Customers";
 import { Services } from "../pages/admin/Services";
+
 import { NotFound } from "../pages/NotFound";
-import { TicketDetails } from "../pages/details/TicketDetails";
 
 export function AdminRoutes() {
   return (
@@ -16,6 +21,8 @@ export function AdminRoutes() {
         <Route path="/ticket/:id/details" element={<TicketDetails />} />
 
         <Route path="/technicians" element={<Technicians />} />
+        <Route path="/technician/create" element={<CreateTechnician />} />
+
         <Route path="/customers" element={<Customers />} />
         <Route path="/services" element={<Services />} />
       </Route>

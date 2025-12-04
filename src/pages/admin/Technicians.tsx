@@ -1,5 +1,6 @@
 import { useAuth } from "../../hooks/useAuth";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { AxiosError } from "axios";
 
 import { api } from "../../services/api";
@@ -20,6 +21,8 @@ export function Technicians() {
   const token = session?.token;
 
   const [technicians, setTechnicians] = useState<Technician[]>([]);
+
+  const navigate = useNavigate();
 
   async function fetchTechnicians() {
     try {
@@ -52,6 +55,10 @@ export function Technicians() {
     }
   }
 
+  function navigateToCreateTechnicianPage() {
+    navigate("/technician/create");
+  }
+
   useEffect(() => {
     fetchTechnicians();
   }, [])
@@ -60,7 +67,11 @@ export function Technicians() {
     <div>
       <div className="flex items-center justify-between mb-4 lg:mb-6">
         <Title className="mb-0 lg:mb-0">Técnicos</Title>
-        <Button className="text-sm flex items-center justify-center basis-10 h-10 lg:basis-[5.75rem] lg:gap-2">
+        <Button
+          aria-label="Navegar para página de criação de técnico"
+          className="text-sm flex items-center justify-center basis-10 h-10 lg:basis-[5.75rem] lg:gap-2"
+          onClick={navigateToCreateTechnicianPage}
+        >
           <Plus size={18} color="#F9FAFA" />
           <span className="hidden lg:block">Novo</span>
         </Button>
