@@ -2,7 +2,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { ArrowLeft, CircleAlert } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import * as z from "zod";
 
@@ -12,6 +12,9 @@ import { FormLayout } from "../../components/layouts/FormLayout";
 import { Input } from "../../components/form/Input";
 import { useAuth } from "../../hooks/useAuth";
 import { api } from "../../services/api";
+
+import type { time } from "../../types/time";
+import { TimeInput } from "../../components/form/TimeInput";
 
 type TechnicianFormData = {
   name: string;
@@ -43,7 +46,7 @@ export function CreateTechnician() {
   const token = session?.token;
 
   const navigate = useNavigate();
-  const [technicianTimes, setTechnicianTimes] = useState([]);
+  const [technicianTimes, setTechnicianTimes] = useState<time[]>([]);
 
   const { control, handleSubmit, formState: { errors }, reset } = useForm<TechnicianFormData>({
     defaultValues: {
@@ -57,11 +60,20 @@ export function CreateTechnician() {
 
   async function fetchTechnicianTimes() {
     try {
-      const resp = await api.get("/times", {
+      const resp = await api.get<TimeAPIResp[]>("/times", {
         headers: {
           "Authorization": `Bearer ${token}`
         }
       });
+      
+      const { data } = resp;
+
+      setTechnicianTimes(
+        data.map((time) => ({
+          id: time.id,
+          time: time.time,
+        }))
+      );
 
     } catch (error) {
       console.error(error);
@@ -73,6 +85,10 @@ export function CreateTechnician() {
       alert("Não foi possível carregar os horários!");
     }
   }
+
+  useEffect(() => {
+    fetchTechnicianTimes();
+  }, []);
 
   return (
     <div className="max-w-[55rem] mx-auto">
@@ -100,7 +116,7 @@ export function CreateTechnician() {
         </header>
 
         <div className="mt-4 flex flex-col gap-4">
-          <FormLayout>
+          <FormLayout className="p-5">
             <fieldset>
               <legend className="text-base font-bold text-gray-200 mb-1">Dados pessoais</legend>
               <p className="text-xs text-gray-300">Defina as informações do perfil do técnico</p>
@@ -176,10 +192,36 @@ export function CreateTechnician() {
             </fieldset>
           </FormLayout>
 
-          <FormLayout>
+          <FormLayout className="p-5">
             <fieldset>
               <legend className="text-base font-bold text-gray-200 mb-1">Horários de atendimento</legend>
               <p className="text-xs text-gray-300">Selecione os horários de disponibilidade do técnico para atendimento</p>
+
+              <div className="mt-5 flex flex-col gap-4">
+                <div role="list">
+                  <strong className="text-xxs uppercase text-gray-300 font-bold">Manhã</strong>
+
+                  <ul role="list">
+                    <TimeInput label="07:00" />
+                  </ul>
+                </div>
+
+                <div>
+                  <strong className="text-xxs uppercase text-gray-300 font-bold">Tarde</strong>
+
+                  <ul role="list">
+
+                  </ul>
+                </div>
+
+                <div>
+                  <strong className="text-xxs uppercase text-gray-300 font-bold">Noite</strong>
+
+                  <ul role="list">
+
+                  </ul>
+                </div>
+              </div>
             </fieldset>
           </FormLayout>
         </div>
