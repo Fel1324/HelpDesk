@@ -21,7 +21,7 @@ type TechnicianFormData = {
   email: string;
   password: string;
   timeIds: number[];
-}
+};
 
 const technicianSchema = z.object({
   name: z
@@ -39,7 +39,7 @@ const technicianSchema = z.object({
       .int("Horário inválido! Horários disponíveis: 07:00 até 23:00")
       .positive("Horário inválido! Horários disponíveis: 07:00 até 23:00")
   ),
-})
+});
 
 export function CreateTechnician() {
   const { session } = useAuth();
@@ -48,7 +48,11 @@ export function CreateTechnician() {
   const navigate = useNavigate();
   const [technicianTimes, setTechnicianTimes] = useState<time[]>([]);
 
-  const { control, handleSubmit, formState: { errors }, reset } = useForm<TechnicianFormData>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TechnicianFormData>({
     defaultValues: {
       name: "",
       email: "",
@@ -56,16 +60,16 @@ export function CreateTechnician() {
       timeIds: [],
     },
     resolver: zodResolver(technicianSchema),
-  })
+  });
 
   async function fetchTechnicianTimes() {
     try {
       const resp = await api.get<TimeAPIResp[]>("/times", {
         headers: {
-          "Authorization": `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       const { data } = resp;
 
       setTechnicianTimes(
@@ -74,7 +78,27 @@ export function CreateTechnician() {
           time: time.time,
         }))
       );
+    } catch (error) {
+      console.error(error);
 
+      if (error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível carregar os horários!");
+    }
+  }
+
+  async function createTechnician(data: TechnicianFormData) {
+    try {
+      await api.post(`/technicians`, data, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      navigate("/technicians");
+      
     } catch (error) {
       console.error(error);
 
@@ -82,7 +106,7 @@ export function CreateTechnician() {
         return alert(error.response?.data.message);
       }
 
-      alert("Não foi possível carregar os horários!");
+      alert("Não foi possível criar o técnico.");
     }
   }
 
@@ -92,11 +116,13 @@ export function CreateTechnician() {
 
   return (
     <div className="max-w-[55rem] mx-auto">
-      <form>
+      <form onSubmit={handleSubmit(createTechnician)}>
         <header className="md:flex items-center justify-between">
           <div>
             <Link
-              className="text-xs font-bold text-gray-300 flex items-center gap-2 mb-1 w-fit" to="/technicians">
+              className="text-xs font-bold text-gray-300 flex items-center gap-2 mb-1 w-fit"
+              to="/technicians"
+            >
               <ArrowLeft size={14} color="#535964" />
               Voltar
             </Link>
@@ -105,11 +131,19 @@ export function CreateTechnician() {
           </div>
 
           <div className="flex gap-2 md:mt-4.5">
-            <Button onClick={() => navigate(-1)} styleVariant="buttonIcon" className="min-w-[7.625rem] md:min-w-[5.5rem]">
+            <Button
+              onClick={() => navigate(-1)}
+              styleVariant="buttonIcon"
+              className="min-w-[7.625rem] md:min-w-[5.5rem]"
+            >
               Cancelar
             </Button>
 
-            <Button styleVariant="buttonIcon" className="bg-gray-200 text-gray-600 md:min-w-[4.5rem]">
+            <Button
+              type="submit"
+              styleVariant="buttonIcon"
+              className="bg-gray-200 text-gray-600 md:min-w-[4.5rem]"
+            >
               Salvar
             </Button>
           </div>
@@ -118,8 +152,12 @@ export function CreateTechnician() {
         <div className="mt-4 flex flex-col gap-4">
           <FormLayout className="p-5">
             <fieldset>
-              <legend className="text-base font-bold text-gray-200 mb-1">Dados pessoais</legend>
-              <p className="text-xs text-gray-300">Defina as informações do perfil do técnico</p>
+              <legend className="text-base font-bold text-gray-200 mb-1">
+                Dados pessoais
+              </legend>
+              <p className="text-xs text-gray-300">
+                Defina as informações do perfil do técnico
+              </p>
 
               <div className="mt-5 flex flex-col gap-4">
                 <div>
@@ -140,7 +178,7 @@ export function CreateTechnician() {
                       <CircleAlert size={16} color="#d03e3e" />
                       {errors.name.message}
                     </span>
-                  )}                  
+                  )}
                 </div>
 
                 <div>
@@ -150,6 +188,7 @@ export function CreateTechnician() {
                     render={({ field }) => (
                       <Input
                         label="E-mail"
+                        type="email"
                         placeholder="exemplo@mail.com"
                         {...field}
                       />
@@ -171,6 +210,7 @@ export function CreateTechnician() {
                     render={({ field }) => (
                       <Input
                         label="Senha"
+                        type="password"
                         placeholder="Defina a senha de acesso"
                         {...field}
                       />
@@ -194,31 +234,135 @@ export function CreateTechnician() {
 
           <FormLayout className="p-5">
             <fieldset>
-              <legend className="text-base font-bold text-gray-200 mb-1">Horários de atendimento</legend>
-              <p className="text-xs text-gray-300">Selecione os horários de disponibilidade do técnico para atendimento</p>
+              <legend className="text-base font-bold text-gray-200 mb-1">
+                Horários de atendimento
+              </legend>
+              <p className="text-xs text-gray-300">
+                Selecione os horários de disponibilidade do técnico para
+                atendimento
+              </p>
 
               <div className="mt-5 flex flex-col gap-4">
                 <div role="list">
-                  <strong className="text-xxs uppercase text-gray-300 font-bold">Manhã</strong>
+                  <strong className="text-xxs uppercase text-gray-300 font-bold">
+                    Manhã
+                  </strong>
 
-                  <ul role="list">
-                    <TimeInput label="07:00" />
+                  <ul className="flex flex-wrap gap-2 mt-1" role="list">
+                    {technicianTimes.map((time) => {
+                      return (
+                        time.id >= 1 &&
+                        time.id <= 6 && (
+                          <Controller
+                            key={time.id}
+                            control={control}
+                            name="timeIds"
+                            render={({ field }) => (
+                              <TimeInput
+                                label={time.time}
+                                value={time.id}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  const currentValues = field.value || [];
+
+                                  if (checked) {
+                                    field.onChange([
+                                      ...currentValues,
+                                      time.id,
+                                    ]);
+                                  } else {
+                                    field.onChange(currentValues.filter((val) => val !== time.id));
+                                  }
+                                }}
+                                checked={field.value.includes(time.id)}
+                              />
+                            )}
+                          />
+                        )
+                      );
+                    })}
                   </ul>
                 </div>
 
                 <div>
-                  <strong className="text-xxs uppercase text-gray-300 font-bold">Tarde</strong>
+                  <strong className="text-xxs uppercase text-gray-300 font-bold">
+                    Tarde
+                  </strong>
 
-                  <ul role="list">
+                  <ul className="flex flex-wrap gap-2 mt-1" role="list">
+                    {technicianTimes.map((time) => {
+                      return (
+                        time.id >= 7 &&
+                        time.id <= 12 && (
+                          <Controller
+                            key={time.id}
+                            control={control}
+                            name="timeIds"
+                            render={({ field }) => (
+                              <TimeInput
+                                label={time.time}
+                                value={time.id}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  const currentValues = field.value || [];
 
+                                  if (checked) {
+                                    field.onChange([
+                                      ...currentValues,
+                                      time.id,
+                                    ]);
+                                  } else {
+                                    field.onChange(currentValues.filter((val) => val !== time.id));
+                                  }
+                                }}
+                                checked={field.value.includes(time.id)}
+                              />
+                            )}
+                          />
+                        )
+                      );
+                    })}
                   </ul>
                 </div>
 
                 <div>
-                  <strong className="text-xxs uppercase text-gray-300 font-bold">Noite</strong>
+                  <strong className="text-xxs uppercase text-gray-300 font-bold">
+                    Noite
+                  </strong>
 
-                  <ul role="list">
+                   <ul className="flex flex-wrap gap-2 mt-1" role="list">
+                    {technicianTimes.map((time) => {
+                      return (
+                        time.id >= 13 &&
+                        time.id <= 17 && (
+                          <Controller
+                            key={time.id}
+                            control={control}
+                            name="timeIds"
+                            render={({ field }) => (
+                              <TimeInput
+                                label={time.time}
+                                value={time.id}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  const currentValues = field.value || [];
 
+                                  if (checked) {
+                                    field.onChange([
+                                      ...currentValues,
+                                      time.id,
+                                    ]);
+                                  } else {
+                                    field.onChange(currentValues.filter((val) => val !== time.id));
+                                  }
+                                }}
+                                checked={field.value.includes(time.id)}
+                              />
+                            )}
+                          />
+                        )
+                      );
+                    })}
                   </ul>
                 </div>
               </div>
@@ -227,5 +371,5 @@ export function CreateTechnician() {
         </div>
       </form>
     </div>
-  )
+  );
 }
