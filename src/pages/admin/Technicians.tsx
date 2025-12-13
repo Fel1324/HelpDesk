@@ -113,7 +113,7 @@ export function Technicians() {
               </TableData>
 
               <TableData>
-                <Button styleVariant="iconSmall" className="bg-gray-500">
+                <Button onClick={() => navigate(`/technician/${technician.id}/update`)} styleVariant="iconSmall" className="bg-gray-500">
                   <PenLine size={14} color="#1E2024" />
                 </Button>
               </TableData>

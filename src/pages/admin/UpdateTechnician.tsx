@@ -1,25 +1,25 @@
-import { Controller, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
-import { ArrowLeft, CircleAlert } from "lucide-react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router";
+import { Controller, useForm } from "react-hook-form";
 import { AxiosError } from "axios";
+import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
+import { ArrowLeft, CircleAlert } from "lucide-react";
 import { Title } from "../../components/Title";
 import { Button } from "../../components/Button";
 import { FormLayout } from "../../components/layouts/FormLayout";
 import { Input } from "../../components/form/Input";
 import { useAuth } from "../../hooks/useAuth";
 import { api } from "../../services/api";
-
-import type { time } from "../../types/time";
+import type { Technician } from "../../types/technician";
 import { TimeInput } from "../../components/form/TimeInput";
+import type { time } from "../../types/time";
+import { UserAvatar } from "../../components/UserAvatar";
 
 type TechnicianFormData = {
   name: string;
   email: string;
-  password: string;
   timeIds: number[];
 };
 
@@ -31,9 +31,6 @@ const technicianSchema = z.object({
   email: z
     .email("E-mail inválido, siga o modelo: email@example.com")
     .toLowerCase(),
-  password: z
-    .string("Senha é obrigatória")
-    .min(6, "Senha deve conter pelo menos 6 caracteres"),
   timeIds: z.array(
     z
       .int("Horário inválido! Horários disponíveis: 07:00 até 23:00")
@@ -41,22 +38,26 @@ const technicianSchema = z.object({
   ),
 });
 
-export function CreateTechnician() {
+export function UpdateTechnician() {
   const { session } = useAuth();
   const token = session?.token;
 
-  const navigate = useNavigate();
+  const params = useParams<{ id: string }>();
+
   const [technicianTimes, setTechnicianTimes] = useState<time[]>([]);
+  const [technician, setTechnician] = useState({} as Technician);
+
+  const navigate = useNavigate();
 
   const {
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<TechnicianFormData>({
     defaultValues: {
       name: "",
       email: "",
-      password: "",
       timeIds: [],
     },
     resolver: zodResolver(technicianSchema),
@@ -88,13 +89,43 @@ export function CreateTechnician() {
       alert("Não foi possível carregar os horários!");
     }
   }
-
-  async function createTechnician(data: TechnicianFormData) {
+  
+  async function fetchTechnician(id: string) {
     try {
-      await api.post(`/technicians`, {
+      const { data } = await api.get<TechnicianAPIResp>(`/technicians/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },        
+      });
+
+      setTechnician({
+        id: data.id,
         name: data.name,
         email: data.email,
-        password: data.password,
+        avatarUrl: data.avatar,
+        technicianTimes: data.technicianTimes,
+      });
+
+      setValue("email", data.email);
+      setValue("name", data.name);
+      setValue("timeIds", data.technicianTimes.map((tt) => tt.time.id));
+
+    } catch (error) {
+      console.error(error);
+
+      if (error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível carregar o técnico!");      
+    }
+  }
+
+  async function updateTechnician(data: TechnicianFormData) {
+    try {
+      await api.put(`/technicians/${technician.id}`, {
+        name: data.name,
+        email: data.email,
         timeIds: data.timeIds.sort((a, b) => a - b),
       }, {
         headers: {
@@ -103,7 +134,7 @@ export function CreateTechnician() {
       });
 
       navigate("/technicians");
-      
+
     } catch (error) {
       console.error(error);
 
@@ -111,17 +142,21 @@ export function CreateTechnician() {
         return alert(error.response?.data.message);
       }
 
-      alert("Não foi possível criar o técnico.");
+      alert("Não foi possível atualizar as informações do técnico.");
     }
   }
 
   useEffect(() => {
     fetchTechnicianTimes();
-  }, []);
+
+    if(params.id) {
+      fetchTechnician(params.id);
+    }
+  }, [params.id]);
 
   return (
     <div className="max-w-[55rem] mx-auto">
-      <form onSubmit={handleSubmit(createTechnician)}>
+      <form onSubmit={handleSubmit(updateTechnician)}>
         <header className="md:flex items-center justify-between">
           <div>
             <Link
@@ -132,7 +167,7 @@ export function CreateTechnician() {
               Voltar
             </Link>
 
-            <Title className="mb-3 md:mb-0 lg:mb-0">Criar técnico</Title>
+            <Title className="mb-3 md:mb-0 lg:mb-0">Editar técnico</Title>
           </div>
 
           <div className="flex gap-2 md:mt-4.5">
@@ -165,6 +200,10 @@ export function CreateTechnician() {
               </p>
 
               <div className="mt-5 flex flex-col gap-4">
+                <div>
+                  <UserAvatar className="w-12 h-12 text-xl" username={technician.name} />
+                </div>
+
                 <div>
                   <Controller
                     control={control}
@@ -204,32 +243,6 @@ export function CreateTechnician() {
                     <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
                       <CircleAlert size={16} color="#d03e3e" />
                       {errors.email.message}
-                    </span>
-                  )}
-                </div>
-
-                <div>
-                  <Controller
-                    control={control}
-                    name="password"
-                    render={({ field }) => (
-                      <Input
-                        label="Senha"
-                        type="password"
-                        placeholder="Defina a senha de acesso"
-                        {...field}
-                      />
-                    )}
-                  />
-
-                  {errors.password?.message ? (
-                    <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
-                      <CircleAlert size={16} color="#d03e3e" />
-                      {errors.password.message}
-                    </span>
-                  ) : (
-                    <span className="text-gray-400 flex items-center gap-1 mt-1.5 text-sm italic">
-                      Mínimo de 6 dígitos
                     </span>
                   )}
                 </div>
@@ -376,5 +389,5 @@ export function CreateTechnician() {
         </div>
       </form>
     </div>
-  );
+  )
 }

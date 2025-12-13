@@ -5,6 +5,7 @@ export type Technician = {
   avatarUrl: string | null;
   technicianTimes: {
     time: {
+      id: number;
       time: string;
       minutes: number;
     }

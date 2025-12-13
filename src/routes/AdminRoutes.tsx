@@ -7,6 +7,7 @@ import { TicketDetails } from "../pages/details/TicketDetails";
 
 import { Technicians } from "../pages/admin/Technicians";
 import { CreateTechnician } from "../pages/admin/CreateTechnician";
+import { UpdateTechnician } from "../pages/admin/UpdateTechnician";
 
 import { Customers } from "../pages/admin/Customers";
 import { Services } from "../pages/admin/Services";
@@ -22,6 +23,7 @@ export function AdminRoutes() {
 
         <Route path="/technicians" element={<Technicians />} />
         <Route path="/technician/create" element={<CreateTechnician />} />
+        <Route path="/technician/:id/update" element={<UpdateTechnician />} />
 
         <Route path="/customers" element={<Customers />} />
         <Route path="/services" element={<Services />} />

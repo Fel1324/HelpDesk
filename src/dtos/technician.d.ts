@@ -7,6 +7,7 @@ type TechnicianAPIResp = {
   lastAssignedAt: string;
   technicianTimes: {
     time: {
+      id: number;
       time: string;
       minutes: number;
     }
