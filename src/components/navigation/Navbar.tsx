@@ -38,7 +38,7 @@ export function Navbar() {
         )}
 
         {user?.role === "customer" && (
-          <NavLink active={pathname === "/new-ticket"} link="/new-ticket">
+          <NavLink active={pathname === "/new-ticket"} link="/ticket/create">
             <Plus size={20} />
             Criar chamado
           </NavLink>       

@@ -1,24 +1,25 @@
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { AxiosError } from "axios";
 import { PenLine } from "lucide-react";
 
-import { api } from "../../services/api";
+import { api } from "../services/api";
 
-import { Button } from "../../components/Button";
-import { Title } from "../../components/Title";
-import { Table } from "../../components/table/Table";
-import { TableData } from "../../components/table/TableData";
-import { TableHeader } from "../../components/table/TableHeader";
-import { TableRow } from "../../components/table/TableRow";
-import { TicketStatus } from "../../components/TicketStatus";
-import { UserAvatar } from "../../components/UserAvatar";
+import { Button } from "../components/Button";
+import { Title } from "../components/Title";
+import { Table } from "../components/table/Table";
+import { TableData } from "../components/table/TableData";
+import { TableHeader } from "../components/table/TableHeader";
+import { TableRow } from "../components/table/TableRow";
+import { TicketStatus } from "../components/TicketStatus";
+import { UserAvatar } from "../components/UserAvatar";
 
-import type { Ticket } from "../../types/ticket";
+import type { Ticket } from "../types/ticket";
 
 export function TicketsList() {
   const {session} = useAuth();
+  const user = session?.user;
   const token = session?.token;
 
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -69,7 +70,7 @@ export function TicketsList() {
 
   return (
     <div>
-      <Title>Chamados</Title>
+      <Title>{user?.role !== "admin" && "Meus chamados"}</Title>
 
       <Table>
         <thead>

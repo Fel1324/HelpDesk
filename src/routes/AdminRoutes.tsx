@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router";
 
 import { AppLayout } from "../components/layouts/AppLayout";
 
-import { TicketsList } from "../pages/admin/TicketsList";
+import { TicketsList } from "../pages/TicketsList";
 import { TicketDetails } from "../pages/details/TicketDetails";
 
 import { Technicians } from "../pages/admin/Technicians";
