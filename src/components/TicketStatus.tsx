@@ -26,7 +26,7 @@ const labels = {
 export function TicketStatus({ styleVariant = "aberto", children, ...rest }: Props) {
   return (
     <span className={classMerge([
-        "w-fit py-1.5 pl-2 pr-3 flex items-center gap-1.5 text-sm font-bold rounded-4xl",
+        "w-fit py-1.5 pl-2 pr-3 flex items-center gap-1.5 text-xs font-bold rounded-4xl",
         styleVariants[styleVariant]
       ])} 
       {...rest}

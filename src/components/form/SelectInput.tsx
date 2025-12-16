@@ -15,7 +15,7 @@ export function SelectInput({ id, label, children, ...rest}: Props) {
         id={id}
         {...rest}
       >
-        <option className="text-base font-bold text-gray-400" value="" disabled hidden selected>
+        <option className="text-base font-bold text-gray-400" value="" disabled hidden>
           Selecione o serviço do chamado
         </option>
         {children}

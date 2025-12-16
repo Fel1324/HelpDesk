@@ -81,7 +81,6 @@ export function TicketsList() {
             <TableHeader>Cliente</TableHeader>
             <TableHeader>Técnico</TableHeader>
             <TableHeader>Status</TableHeader>
-            <TableHeader className="w-13"></TableHeader>
           </tr>
         </thead>
 
@@ -125,12 +124,6 @@ export function TicketsList() {
                 <div>
                   <TicketStatus styleVariant={ticket.status} />
                 </div>
-              </TableData>
-
-              <TableData>
-                <Button styleVariant="iconSmall" className="bg-gray-500">
-                  <PenLine size={14} color="#1E2024" />
-                </Button>
               </TableData>
             </TableRow>
           ))}

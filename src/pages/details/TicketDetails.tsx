@@ -21,7 +21,7 @@ export function TicketDetails() {
   const params = useParams<{ id: string }>();
 
   const [ticket, setTicket] = useState<ticketDetails>({} as ticketDetails);
-  const additionalServices = ticket?.ticketServices.filter(service => service.isAdditional);
+  const additionalServices = ticket?.ticketServices?.filter(service => service.isAdditional);
 
   async function fetchTicket(id: string) {
     try {
@@ -122,7 +122,7 @@ export function TicketDetails() {
             <Button
               onClick={() => updateTicketStatus("emAtendimento", params.id)}
               styleVariant="buttonIcon"
-              className="bg-gray-200 text-gray-600 md:min-w-[10.125rem]"
+              className="bg-gray-200 text-gray-600 md:min-w-[11.25rem]"
             >
               <Clock2 size={18} color="#F9FAFA" />
               {user?.role === "admin" && "Em atendimento"}
@@ -133,10 +133,10 @@ export function TicketDetails() {
       </header>
 
       <div className="mt-4 flex flex-col gap-4 max-w-[31.25rem] mx-auto md:mt-6 lg:max-w-full lg:flex-row lg:gap-6">
-        <div className="border-1 border-gray-500 rounded-[.625rem] p-5 flex flex-col gap-5 lg:h-fit lg:basis-[50%] xl:p-6">
+        <div className="border-1 border-gray-500 rounded-[.625rem] p-5 flex flex-col gap-5 lg:h-fit lg:basis-[60%]">
           <div className="flex flex-col items-end md:flex-row-reverse md:justify-between md:items-center">
             {ticket && <TicketStatus styleVariant={ticket.status} />}
-            <h2 className="text-gray-200 text-base font-bold mt-1 self-start">{ticket?.title}</h2>
+            <h2 className="text-gray-200 text-base font-bold mt-1 self-start md:mt-0 md:self-auto">{ticket?.title}</h2>
           </div>
 
           <div>
@@ -153,7 +153,7 @@ export function TicketDetails() {
             <div>
               <span className="text-gray-400 text-xs block">Criado em</span>
               <span className="text-xs text-gray-200">
-                {ticket?.createdAt.toLocaleDateString("pt-BR", {
+                {ticket?.createdAt?.toLocaleDateString("pt-BR", {
                   hour: "numeric",
                   minute: "numeric",
                 })}
@@ -163,7 +163,7 @@ export function TicketDetails() {
             <div>
               <span className="text-gray-400 text-xs block">Atualizado em</span>
               <span className="text-xs text-gray-200">
-                {ticket?.updatedAt.toLocaleDateString("pt-BR", {
+                {ticket?.updatedAt?.toLocaleDateString("pt-BR", {
                   hour: "numeric",
                   minute: "numeric",
                 })}
@@ -174,21 +174,21 @@ export function TicketDetails() {
           <div>
             <span className="text-gray-400 text-xs mb-2 block">Cliente</span>
             <div className="flex items-center gap-1.5">
-              {ticket && <UserAvatar username={ticket?.customer.name} /> }            
-              <span className="text-sm text-gray-200 capitalize">{ticket?.customer.name}</span>
+              {ticket && <UserAvatar username={ticket?.customer?.name} /> }            
+              <span className="text-sm text-gray-200 capitalize">{ticket?.customer?.name}</span>
             </div>
           </div>
         </div>
 
-        <div className="border-1 border-gray-500 rounded-[.625rem] px-5 py-6 flex flex-col gap-5 lg:h-fit lg:basis-[50%] xl:p-6">
+        <div className="border-1 border-gray-500 rounded-[.625rem] px-5 py-6 flex flex-col gap-5 lg:h-fit lg:basis-[40%] xl:p-6">
           <div>
             <span className="text-gray-400 text-xs mb-2 block">Técnico responsável</span>
             <div className="flex items-center gap-2">
-              {ticket && <UserAvatar className="w-8 h-8 text-base" username={ticket?.technician.name} /> }
+              {ticket && <UserAvatar className="w-8 h-8 text-base" username={ticket?.technician?.name} /> }
 
               <div className="flex flex-col">
-                <span className="text-sm text-gray-200 capitalize">{ticket?.technician.name}</span>
-                <small className="text-xs text-gray-300">{ticket?.technician.email}</small>
+                <span className="text-sm text-gray-200 capitalize">{ticket?.technician?.name}</span>
+                <small className="text-xs text-gray-300">{ticket?.technician?.email}</small>
               </div>
             </div>
           </div>
@@ -198,7 +198,7 @@ export function TicketDetails() {
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-200">Preço base</span>
               <span className="text-xs text-gray-200">
-                {ticket?.ticketServices[0].service.price.toLocaleString("pt-BR", {
+                {ticket?.ticketServices?.[0]?.service?.price?.toLocaleString("pt-BR", {
                   style: "currency",
                   currency: "BRL",
                 })}
@@ -232,7 +232,7 @@ export function TicketDetails() {
           <div className="flex justify-between items-center pt-3 border-t-1 border-gray-500">
             <span className="text-sm font-bold">Total</span>
             <span className="text-sm font-bold">
-              {ticket?.total.toLocaleString("pt-BR", {
+              {ticket?.total?.toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",
               })}
@@ -240,6 +240,10 @@ export function TicketDetails() {
           </div>
         </div>
       </div>
+
+      {user?.role === "technician" && (
+        <div className="mt-3">Serviços adicionais</div>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { NotFound } from "../pages/NotFound";
 
 import { TicketsList } from "../pages/TicketsList";
 import { CreateTicket } from "../pages/customer/CreateTicket";
+import { TicketDetails } from "../pages/details/TicketDetails";
 
 export function CustomerRoutes() {
   return (
@@ -12,6 +13,7 @@ export function CustomerRoutes() {
       <Route path="/" element={<AppLayout />}>
         <Route path="/" element={<TicketsList />} />
         <Route path="/ticket/create" element={<CreateTicket />} />
+        <Route path="/ticket/:id/details" element={<TicketDetails />} />
       </Route>
 
 
