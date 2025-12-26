@@ -162,7 +162,13 @@ export function CreateTicket() {
             </div>
 
             <div>
-              <SelectInput onClick={getTicketSummary} id="service" label="Serviço" {...register("serviceId")}>
+              <SelectInput
+                onClick={getTicketSummary}
+                id="service"
+                label="Serviço"
+                defaultOption="Selecione o serviço do chamado"
+                {...register("serviceId")}
+              >
                 {services.map((service) => (
                   <option key={service.id} value={service.id}>{service.title}</option>
                 ))}

@@ -1,19 +1,40 @@
+import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { Link, useParams } from "react-router";
 import { AxiosError } from "axios";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
-import { ArrowLeft, CircleCheckBig, Clock2 } from "lucide-react";
+import { ArrowLeft, CircleAlert, CircleCheckBig, Clock2, Plus, Trash } from "lucide-react";
 
 import { Title } from "../../components/Title";
 import { Button } from "../../components/Button";
 import { api } from "../../services/api";
 import { TicketStatus } from "../../components/TicketStatus";
 import { UserAvatar } from "../../components/UserAvatar";
+import { Modal } from "../../components/Modal";
+import { SelectInput } from "../../components/form/SelectInput";
 
 import type { ticketDetails } from "../../types/ticketDetails";
+import type { Service } from "../../types/service";
+
+type AdditionalServiceFormData = {
+  serviceId: string;
+}
+
+const additionalServiceSchema = z.object({
+  serviceId: z.uuid("Selecione corretamente o serviço!"),
+});
 
 export function TicketDetails() {
+  const { handleSubmit, register, formState: { errors }, setValue } = useForm({
+    defaultValues: {
+      serviceId: "",
+    },
+    resolver: zodResolver(additionalServiceSchema),
+  });
+
   const { session } = useAuth();
   const user = session?.user;
   const token = session?.token;
@@ -21,8 +42,11 @@ export function TicketDetails() {
   const params = useParams<{ id: string }>();
 
   const [ticket, setTicket] = useState<ticketDetails>({} as ticketDetails);
+  const [services, setServices] = useState<Service[]>([]);
   const additionalServices = ticket?.ticketServices?.filter(service => service.isAdditional);
 
+  const [isAddServiceModalOpen, setIsAddServiceModalOpen] = useState<boolean>(false);
+  
   async function fetchTicket(id: string) {
     try {
       const { data } = await api.get<TicketAPIResp>(`/tickets/${id}`, {
@@ -91,7 +115,88 @@ export function TicketDetails() {
     }
   }
 
+  async function fetchServices() {
+    try {
+      const resp = await api.get<ServiceAPIResp[]>(`/services`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      const { data } = resp;
+
+      setServices(
+        data.map((service) => ({
+          id: service.id,
+          title: service.title,
+          price: service.price,
+          status: service.status,
+        }))
+      );
+
+    } catch (error) {
+      console.error(error);
+
+      if(error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível carregar os serviços!");
+    }
+  }
+
+  async function createAdditionalService(data: AdditionalServiceFormData) {
+    try {
+      await api.post(`/services/additional/${ticket.id}`, data, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },        
+      });
+
+      setIsAddServiceModalOpen(false);
+      await fetchTicket(ticket.id);
+
+      setValue("serviceId", "");
+
+    } catch (error) {
+      console.error(error);
+
+      if(error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível criar o serviço adicional!");      
+    }
+  }
+
+  async function removeAdditionalService(ticketId: string, serviceId: string) {
+    try {
+      const confirmRemove = window.confirm("Tem certeza que deseja remover este serviço adicional?");
+
+      if(!confirmRemove) return;
+
+      await api.delete(`services/additional/delete/${ticketId}/${serviceId}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        }
+      });
+
+      await fetchTicket(ticketId);
+
+    } catch (error) {
+      console.error(error);
+
+      if(error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Não foi possível remover o serviço adicional!");
+    }
+  }
+
   useEffect(() => {
+    fetchServices();
+
     if (params.id) {
       fetchTicket(params.id);
     }
@@ -195,7 +300,8 @@ export function TicketDetails() {
 
           <div>
             <span className="text-gray-400 text-xs mb-2 block">Valores</span>
-            <div className="flex justify-between items-center">
+
+            <div className="flex justify-between items-center mb-1.5">
               <span className="text-xs text-gray-200">Preço base</span>
               <span className="text-xs text-gray-200">
                 {ticket?.ticketServices?.[0]?.service?.price?.toLocaleString("pt-BR", {
@@ -204,28 +310,17 @@ export function TicketDetails() {
                 })}
               </span>
             </div>
-          </div>
 
-          <div>
-            <span className="text-gray-400 text-xs mb-2 block">Adicionais</span>
-            <div className="flex flex-col gap-1.5">
-              {additionalServices?.map((additional) => (
-                <div key={additional.service.id} className="flex justify-between items-center">
-                  <span 
-                    className="text-xs text-gray-200"
-                    title={additional.service.title}
-                  >
-                    {additional.service.title}
-                  </span>
-
-                  <span className="text-xs text-gray-200">
-                    {additional.service.price.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })}
-                  </span>
-                </div>
-              ))}
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-200">Adicionais</span>
+              <span className="text-xs text-gray-200">
+                {additionalServices?.reduce((accumulator, currentValue) =>
+                  accumulator + currentValue.service.price, 0
+                ).toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+              </span>
             </div>
           </div>
 
@@ -242,8 +337,80 @@ export function TicketDetails() {
       </div>
 
       {user?.role === "technician" && (
-        <div className="mt-3">Serviços adicionais</div>
+        <div className="mt-4 border-1 border-gray-500 rounded-[.625rem] p-5 flex flex-col gap-2 max-w-[31.25rem] mx-auto lg:mx-0 lg:mt-3 lg:max-w-[32.0625rem]">
+          <div className="flex items-center justify-between">
+            <span className="text-gray-400 text-xs block">Serviços adicionais</span>
+            <Button onClick={() => setIsAddServiceModalOpen(true)} styleVariant="iconSmall">
+              <Plus size={14} color="#FAFAFA" />
+            </Button>
+          </div>
+
+          <ul role="list" className="[&_li+li]:border-t [&_li+li]:border-gray-500">
+            {additionalServices?.map((additional) => (
+              <>
+                <li 
+                  key={additional.service.id}
+                  className="text-gray-200 text-xs flex items-center justify-between py-2"
+                >
+                  <span>{additional.service.title}</span>
+
+                  <div className="flex gap-6 items-center">
+                    <span>
+                      {additional.service.price.toLocaleString("pt-br", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </span>
+                    <Button
+                      onClick={() => removeAdditionalService(ticket.id, additional.service.id)}
+                      styleVariant="iconSmall"
+                      className="bg-gray-500"
+                    >
+                      <Trash size={14} color="#D03E3E" />
+                    </Button>
+                  </div>
+                </li>
+
+                {/* <hr className="my-2 text-gray-500" /> */}
+              </>              
+            ))}
+          </ul>
+        </div>
       )}
+
+      <Modal
+        title="Serviço adicional"
+        isOpen={isAddServiceModalOpen}
+        close={setIsAddServiceModalOpen}
+        bodyContent={
+          <div>
+            <form onSubmit={handleSubmit(createAdditionalService)} className="flex flex-col gap-12">
+              <div>
+                <SelectInput
+                  id="additionalService"
+                  label="Serviço adicional"
+                  defaultOption="Selecione um serviço adicional"
+                  {...register("serviceId")}
+                >
+                  {services.map((service) => (
+                    ticket?.ticketServices?.some(ticketService => ticketService.service.id === service.id) ? null : (
+                      <option key={service.id} value={service.id}>{service.title}</option>
+                    )
+                  ))}
+                </SelectInput>
+
+                {errors.serviceId?.message && (
+                  <span className="text-feedback-danger flex items-center gap-1 mt-1.5 text-sm">
+                    <CircleAlert size={16} color="#d03e3e" />
+                    {errors.serviceId.message}
+                  </span>
+                )}                   
+              </div>
+              <Button type="submit">Salvar</Button>
+            </form>
+          </div> 
+        }
+      />
     </div>
   );
 }

@@ -1,9 +1,10 @@
 type Props = React.ComponentProps<"select"> & {
   id: string;
   label: string;
+  defaultOption: string;
 }
 
-export function SelectInput({ id, label, children, ...rest}: Props) {
+export function SelectInput({ id, label, children, defaultOption, ...rest}: Props) {
   return (
     <div className="w-full flex flex-col text-gray-300 focus-within:text-blue-base">
       <label className="text-xs uppercase font-bold text-inherit tracking-wider" htmlFor={id}>
@@ -16,7 +17,7 @@ export function SelectInput({ id, label, children, ...rest}: Props) {
         {...rest}
       >
         <option className="text-base font-bold text-gray-400" value="" disabled hidden>
-          Selecione o serviço do chamado
+          {defaultOption}
         </option>
         {children}
       </select>
