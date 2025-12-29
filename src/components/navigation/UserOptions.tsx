@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, CircleAlert, CircleUser, LogOut } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -11,6 +11,7 @@ import { Input } from "../form/Input";
 import { Button } from "../Button";
 import { AxiosError } from "axios";
 import { api } from "../../services/api";
+import type { Technician } from "../../types/technician";
 
 type ProfileFormData = {
   name: string;
@@ -43,6 +44,8 @@ export function UserOptions() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
   const [isPasswordChangeModalOpen, setIsPasswordChangeModalOpen] = useState<boolean>(false);
 
+  const [technician, setTechnician] = useState<Technician>({} as Technician);
+
   const { register, handleSubmit, formState: {errors} } = useForm<ProfileFormData>({
     defaultValues: {
       name: user?.name || "",
@@ -58,6 +61,35 @@ export function UserOptions() {
     },
     resolver: zodResolver(changePasswordSchema),
   })
+
+  async function fetchTechnicianData(id: string) {
+    try {
+      const resp = await api.get<TechnicianAPIResp>(`/profiles/${id}`, {
+        headers: {
+          "Authorization": `Bearer ${session?.token}`
+        },
+      });
+
+      const { data } = resp;
+      
+      setTechnician({
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        avatarUrl: data.avatar,
+        technicianTimes: data.technicianTimes,
+      });
+
+    } catch (error) {
+      console.error(error);
+
+      if(error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("Error ao carregar dados do técnico.");
+    }
+  }
 
   async function handleUpdateProfile(data: ProfileFormData) {
     try {
@@ -116,6 +148,14 @@ export function UserOptions() {
     }
   }
 
+  if(user?.role === "technician") {
+    useEffect(() => {
+      if(user?.id) {
+        fetchTechnicianData(user.id);
+      }
+    }, [user?.id]);
+  }
+
   return (
     <aside className="min-w-[12.375rem] px-5 py-4 bg-gray-100 fixed top-[6.25rem] right-6 rounded-[.625rem] xl:top-auto xl:right-auto xl:left-[13rem] xl:bottom-2">
       <span className="uppercase text-xs text-gray-400 font-bold">Opções</span>
@@ -146,13 +186,7 @@ export function UserOptions() {
         close={setIsProfileModalOpen}
         bodyContent={
           <form onSubmit={handleSubmit(handleUpdateProfile)}>
-            <div className="flex items-center gap-4">
-              {user && (
-                <UserAvatar className="w-12 h-12 text-xl" username={user?.name} />
-              )}
-            </div>
-
-            <div className="mt-5 mb-7 flex flex-col gap-4">
+            <div className="mb-7 flex flex-col gap-4">
               <div>
                 <Input
                   label="Nome"
@@ -209,6 +243,21 @@ export function UserOptions() {
                 </div>
               </div>
             </div>
+
+            {user?.role === "technician" && (
+              <div className="mb-7">
+                <h3 className="text-gray-200 text-sm font-bold">Disponibilidade</h3>
+                <p className="text-xs text-gray-300 mt-0.5">Horários de atendimento definidos pelo admin</p>
+
+                <ul role="list" className="mt-3.5 flex flex-wrap gap-1">
+                  {technician.technicianTimes?.map((techTime) => (
+                    <li key={techTime.time.id} className="text-xs font-bold text-gray-400 px-3 h-7 border border-gray-500 flex items-center justify-center rounded-2xl">
+                      {techTime.time.time}
+                    </li>
+                  ))}
+                </ul>
+              </div>              
+            )}
 
             <Button type="submit">Salvar</Button>
           </form>
