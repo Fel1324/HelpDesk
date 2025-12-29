@@ -7,6 +7,7 @@ import { UserOptions } from "./UserOptions";
 import { Navbar } from "./Navbar";
 
 import logo from "../..//assets/logo.svg";
+import { UserAvatar } from "../UserAvatar";
 
 export function Menu() {
   const [isOpenUserOptions, setIsOpenUserOptions] = useState(false);
@@ -16,7 +17,6 @@ export function Menu() {
 
   const { session } = useAuth();
   const user = session?.user;
-  const userWithoutAvatar = user?.name?.split(" ").slice(0, 2).map(n => n[0]).join("").toUpperCase();
 
   const userRoles = {
     admin: "admin",
@@ -75,26 +75,20 @@ export function Menu() {
         </div>
 
         <div className="xl:px-[1.25rem] xl:py-[1.25rem] xl:flex xl:items-center xl:gap-3 xl:w-full xl:border-t-1 xl:border-gray-200">
-          <button
-            onClick={openUserOptions}
-            className="w-10 h-10 rounded-4xl bg-blue-dark flex items-center justify-center cursor-pointer xl:w-8 xl:h-8 xl:text-sm"
-            title="Opções do usuário"
-          >
-            { user?.avatar ? (
-              <span>XY</span>
-            ) : (
-              <span className="text-gray-600">{userWithoutAvatar}</span>
-            )}
-          </button>
+          {user && (
+            <UserAvatar onClick={openUserOptions} className="text-base xl:text-sm w-8 h-8" username={user?.name} />
+          )}
 
           <div className="hidden xl:flex xl:flex-col">
             <button
               onClick={openUserOptions}
               className="text-sm text-gray-600 text-left cursor-pointer"
             >
-                {user?.name}
+              {user?.name}
             </button>
-            <span className="text-xs text-gray-400">{user?.email}</span>
+            <span title={user?.email} className="text-xs text-gray-400 w-[110px] whitespace-nowrap overflow-hidden text-ellipsis">
+              {user?.email}
+            </span>
           </div>
         </div>
       </aside>

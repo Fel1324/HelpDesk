@@ -336,13 +336,15 @@ export function TicketDetails() {
         </div>
       </div>
 
-      {user?.role === "technician" && (
+      {user?.role !== "admin" && (
         <div className="mt-4 border-1 border-gray-500 rounded-[.625rem] p-5 flex flex-col gap-2 max-w-[31.25rem] mx-auto lg:mx-0 lg:mt-3 lg:max-w-[32.0625rem]">
           <div className="flex items-center justify-between">
             <span className="text-gray-400 text-xs block">Serviços adicionais</span>
-            <Button onClick={() => setIsAddServiceModalOpen(true)} styleVariant="iconSmall">
-              <Plus size={14} color="#FAFAFA" />
-            </Button>
+            {user?.role === "technician" && (
+              <Button onClick={() => setIsAddServiceModalOpen(true)} styleVariant="iconSmall">
+                <Plus size={14} color="#FAFAFA" />
+              </Button>
+            )}
           </div>
 
           <ul role="list" className="[&_li+li]:border-t [&_li+li]:border-gray-500">
@@ -361,13 +363,15 @@ export function TicketDetails() {
                         currency: "BRL",
                       })}
                     </span>
-                    <Button
-                      onClick={() => removeAdditionalService(ticket.id, additional.service.id)}
-                      styleVariant="iconSmall"
-                      className="bg-gray-500"
-                    >
-                      <Trash size={14} color="#D03E3E" />
-                    </Button>
+                    {user?.role === "technician" && (
+                      <Button
+                        onClick={() => removeAdditionalService(ticket.id, additional.service.id)}
+                        styleVariant="iconSmall"
+                        className="bg-gray-500"
+                      >
+                        <Trash size={14} color="#D03E3E" />
+                      </Button>
+                    )}
                   </div>
                 </li>
 

@@ -2,11 +2,9 @@ import { useAuth } from "../hooks/useAuth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { AxiosError } from "axios";
-import { PenLine } from "lucide-react";
 
 import { api } from "../services/api";
 
-import { Button } from "../components/Button";
 import { Title } from "../components/Title";
 import { Table } from "../components/table/Table";
 import { TableData } from "../components/table/TableData";
