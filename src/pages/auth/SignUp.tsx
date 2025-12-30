@@ -28,7 +28,7 @@ export function SignUp() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const {control, handleSubmit, formState: { errors }} = useForm<SignUpFormData>({
+  const {control, handleSubmit, formState: { errors }, setValue } = useForm<SignUpFormData>({
     defaultValues: {
       name: "",
       email: "",
@@ -42,17 +42,20 @@ export function SignUp() {
   async function signUp(data: SignUpFormData) {
     try {
       setIsLoading(true);            
-      await api.post("/users", data);
+      const resp = await api.post("/users", data);
       
       setErrorMessage("");
-      navigate("/");
+
+      setValue("email", "");
+
+      if(resp.status === 201) return navigate("/");
 
     } catch (error) {
       if(error instanceof AxiosError) {
         return setErrorMessage(error.response?.data.message);
       }
 
-      alert("Não foi possível criar a conta. Tente novamente mais tarde.");
+      alert("Não foi possível criar a conta.");
 
     } finally {
       setIsLoading(false);

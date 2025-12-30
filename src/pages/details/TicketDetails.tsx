@@ -246,7 +246,7 @@ export function TicketDetails() {
 
           <div>
             <span className="text-gray-400 text-xs">Descrição</span>
-            <p className="text-sm text-gray-200">{ticket?.description}</p>
+            <p className="text-sm text-gray-200 break-words">{ticket?.description}</p>
           </div>
 
           <div>
@@ -349,34 +349,30 @@ export function TicketDetails() {
 
           <ul role="list" className="[&_li+li]:border-t [&_li+li]:border-gray-500">
             {additionalServices?.map((additional) => (
-              <>
-                <li 
-                  key={additional.service.id}
-                  className="text-gray-200 text-xs flex items-center justify-between py-2"
-                >
-                  <span>{additional.service.title}</span>
+              <li 
+                key={additional.service.id}
+                className="text-gray-200 text-xs flex items-center justify-between py-2"
+              >
+                <span>{additional.service.title}</span>
 
-                  <div className="flex gap-6 items-center">
-                    <span>
-                      {additional.service.price.toLocaleString("pt-br", {
-                        style: "currency",
-                        currency: "BRL",
-                      })}
-                    </span>
-                    {user?.role === "technician" && (
-                      <Button
-                        onClick={() => removeAdditionalService(ticket.id, additional.service.id)}
-                        styleVariant="iconSmall"
-                        className="bg-gray-500"
-                      >
-                        <Trash size={14} color="#D03E3E" />
-                      </Button>
-                    )}
-                  </div>
-                </li>
-
-                {/* <hr className="my-2 text-gray-500" /> */}
-              </>              
+                <div className="flex gap-6 items-center">
+                  <span>
+                    {additional.service.price.toLocaleString("pt-br", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                  </span>
+                  {user?.role === "technician" && (
+                    <Button
+                      onClick={() => removeAdditionalService(ticket.id, additional.service.id)}
+                      styleVariant="iconSmall"
+                      className="bg-gray-500"
+                    >
+                      <Trash size={14} color="#D03E3E" />
+                    </Button>
+                  )}
+                </div>
+              </li>            
             ))}
           </ul>
         </div>

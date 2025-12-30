@@ -6,6 +6,12 @@ Um sistema para gerenciamento de chamados construído com React + TypeScript + V
 
 <br>
 
+## Interfaces do Projeto
+
+Acesse o [Figma do projeto](https://www.figma.com/community/file/1506654636739959765) para visualizar o design.
+
+<br>
+
 **Tecnologias Utilizadas:**
 
 - [React 19](https://react.dev/)
