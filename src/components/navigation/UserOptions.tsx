@@ -6,7 +6,6 @@ import * as z from "zod";
 
 import { useAuth } from "../../hooks/useAuth";
 import { Modal } from "../Modal";
-import { UserAvatar } from "../UserAvatar";
 import { Input } from "../form/Input";
 import { Button } from "../Button";
 import { AxiosError } from "axios";
@@ -54,7 +53,7 @@ export function UserOptions() {
     resolver: zodResolver(profileSchema),
   });
 
-  const { register: rePwdChange, handleSubmit: haPwdSubmit, formState: { errors: errPwd } } = useForm<ChangePasswordFormData>({
+  const { register: rePwdChange, handleSubmit: haPwdSubmit, formState: { errors: errPwd }, setValue } = useForm<ChangePasswordFormData>({
     defaultValues: {
       password: "",
       newPassword: "",
@@ -127,15 +126,20 @@ export function UserOptions() {
 
   async function handleChangePassword(data: ChangePasswordFormData) {
     try {
-      await api.patch(`/profiles/${user?.id}`, data, {
+      const res = await api.patch(`/profiles/${user?.id}`, data, {
         headers: {
           "Authorization": `Bearer ${session?.token}`
         },
       });
 
-      setIsPasswordChangeModalOpen(false);
-      setIsProfileModalOpen(true);
-      alert("Senha alterada com sucesso!");
+      setValue("password", "");
+      setValue("newPassword", "");
+      
+      if(res.status === 200) {
+        setIsPasswordChangeModalOpen(false);
+        setIsProfileModalOpen(true);
+        return alert("Senha alterada com sucesso!")
+      };
 
     } catch (error) {
       console.error(error);
@@ -144,7 +148,7 @@ export function UserOptions() {
         return alert(error.response?.data.message);
       }
 
-      alert("Erro ao atualizar perfil. Tente novamente mais tarde.");      
+      alert("Erro ao atualizar perfil.");      
     }
   }
 
