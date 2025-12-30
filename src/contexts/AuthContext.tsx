@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { createContext } from "react";
+import { api } from "../services/api";
+import { AxiosError } from "axios";
 
 type AuthContext = {
   isLoading: boolean;
@@ -45,6 +47,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     window.location.assign("/");
   }
+
+  api.interceptors.response.use((response) => response, (error) => {
+    if(error instanceof AxiosError) {
+      alert(error.response?.data.message);
+    }
+    
+    if(error.response?.status === 401) {
+      removeUser();
+    }
+  });
 
   useEffect(() => {
     loadUser();

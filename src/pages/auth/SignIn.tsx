@@ -48,11 +48,13 @@ export function SignIn() {
       setErrorMessage("");
 
     } catch (error) {
+      console.error(error);
+
       if(error instanceof AxiosError) {
         return setErrorMessage(error.response?.data.message);
       }
 
-      alert("Não foi possível entrar em sua conta. Tente novamente mais tarde.");
+      // alert("E-mail ou senha inválidos");
 
     } finally {
       setIsLoading(false);
